@@ -6,12 +6,14 @@ using UnityEngine.UI;
 
 public class Guild : MonoBehaviour {
 
-    private int tick = 0;
-
     public Player GuildMaster;
+
+    public Calendar Calendar;
+    public GameEvent GameEventPrefab;
 
     public List<GameObject> Adventurers;
     public List<GameObject> Missions;
+
 
     private GameObject selected_mission;
     private Mission getSelectedMission
@@ -48,7 +50,11 @@ public class Guild : MonoBehaviour {
     private bool is_warned;
     private void onStartMissionClick()
     {
-
+        if (selected_adventurers.Count == 0)
+        {
+            ErrorMessages.text = "You need to select at least one adventurer to send on a mission.";
+            return;
+        }
         if (selected_adventurers.Count == getSelectedMission.MaxAdventurers || (selected_adventurers.Count < getSelectedMission.MaxAdventurers && is_warned))
         {
             ErrorMessages.text = "Mission Started";
@@ -85,6 +91,8 @@ public class Guild : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        UnityEngine.Random.InitState(10100);
+
         StartMission.onClick.AddListener(onStartMissionClick);
 
         StartMission.enabled = false;
@@ -94,24 +102,18 @@ public class Guild : MonoBehaviour {
         selected_adventurers = new List<GameObject>();
 
         ErrorMessages.text = "Everything is Okay";
+
+        Calendar.dailyEventTrigger += fireDailyEvent;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        tick += 1;
-
-        if (tick % 100 == 0 && Adventurers.Count < 10)
-        {
-            createNewAdventurer();
-            createNewMission();
-        }
-
         if (selected_mission != null & selected_adventurers.Count > 0)
             StartMission.enabled = true;
 	}
 
 
-    private void createNewAdventurer()
+    public void createNewAdventurer()
     {
         GameObject adv_game_object = Instantiate(AdventurerPrefab) as GameObject;
         Adventurers.Add(adv_game_object);
@@ -154,7 +156,7 @@ public class Guild : MonoBehaviour {
         // Otherwise do nothing.
     }
 
-    private void createNewMission()
+    public void createNewMission()
     {
         GameObject mission_gameobject = Instantiate(MissionPrefab) as GameObject;
         Missions.Add(mission_gameobject);
@@ -190,4 +192,16 @@ public class Guild : MonoBehaviour {
             selected_mission = mission.gameObject;
         }
     }
+
+
+    public GameObject LastEvent;
+    public void fireDailyEvent(object sender, EventArgs e)
+    {
+        GameEvent game_event = Instantiate(GameEventPrefab);
+        LastEvent = game_event.gameObject;
+    }
+
+
+
+
 }
