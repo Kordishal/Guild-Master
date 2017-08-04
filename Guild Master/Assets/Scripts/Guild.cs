@@ -14,7 +14,7 @@ public class Guild : MonoBehaviour {
     public List<GameObject> Adventurers;
     public List<GameObject> Missions;
 
-
+    public Text MissionDescription;
     public GameObject SelectedMission;
     public Mission getSelectedMission
     {
@@ -37,6 +37,9 @@ public class Guild : MonoBehaviour {
 
     public ScrollRect AdventurerView;
     public ScrollRect MissionView;
+
+    public Button AdventureButtonPrefab;
+    public Button MissionButtonPrefab;
 
     public Button StartMission;
 
@@ -73,7 +76,7 @@ public class Guild : MonoBehaviour {
                 a.isAvailable = false;
             }
 
-            m.runMission(this, advs);
+            m.startMission(advs);
         }
         else
         {
@@ -99,7 +102,15 @@ public class Guild : MonoBehaviour {
         ErrorMessages.text = "Everything is Okay";
 
         Calendar.dailyEventTrigger += fireDailyEvent;
-	}
+
+        // Create a bunch of missions and adventurers to begin with.
+
+        for (int i = 0; i < 5; i++)
+        {
+            Button adventurer = Instantiate(AdventureButtonPrefab) as Button;
+            Button mission = Instantiate(MissionButtonPrefab) as Button;
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {

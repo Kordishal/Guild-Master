@@ -9,41 +9,93 @@ public class Mission : MonoBehaviour {
     private static int ID = 0;
     public string Name;
     public double Reward;
-    public int MaxAdventurers;
+    public string Description;
 
-    static private int current_missions;
+    public int Duration;
+    private int elapsed_time;
+
+    public int MaxAdventurers;
+    private List<Adventurer> adventurers_running_the_mission;
 
     private Guild guild;
 
-    public bool isAvailable;
+
     public bool isSelected;
-    public bool isFulfilled;
 
-    public void runMission(Guild guild, List<Adventurer> adventurers)
+    public bool isAvailable;
+    public bool isRunning;
+    public bool isFinished;
+
+    public void startMission(List<Adventurer> adventurers)
     {
-        double full_reward = Reward;
-        foreach (Adventurer a in adventurers)
-            Reward = Reward - (full_reward * a.Cost);
+        isRunning = true;
+        adventurers_running_the_mission = new List<Adventurer>(adventurers);
+        foreach (Adventurer a in adventurers_running_the_mission)
+            a.isAvailable = false;
 
-        guild.GuildMaster.Currency += (int)Reward;
+        guild.Calendar.hourlyTrigger += runningMission;
+    }
 
-        foreach (Adventurer a in adventurers)
+    private void runningMission(object sender, EventArgs e)
+    {
+
+
+
+
+        if (isRunning)
         {
+            elapsed_time += 1;
+            if (elapsed_time >= Duration)
+                endMission();
+        }
+    }
+
+    public void endMission()
+    {
+        // decrease reward by the cost of the adventurers.
+        double full_reward = Reward;
+        foreach (Adventurer a in adventurers_running_the_mission)
+        {
+            Reward = Reward - (full_reward * a.Cost);
             a.isAvailable = true;
-            Debug.Log(a.Name + ": " + a.isAvailable);
         }
 
 
-        isFulfilled = true;
-        current_missions -= 1;
+        guild.GuildMaster.Currency += (int)Reward;
+
+        isRunning = false;
+        isFinished = true;
+        removeMission();
+    }
+
+    private void removeMission()
+    {
+        guild.Missions.Remove(gameObject);
+        MissionButton.enabled = false;
+        guild.Calendar.hourlyTrigger -= runningMission;
+
+        // Resort the mission view to fill the content up from the top again.
+        int count = 1;
+        foreach (GameObject mission in guild.Missions)
+        {
+            mission.GetComponent<Button>().transform.SetParent(guild.MissionView.transform.GetChild(0).GetChild(0));
+            RectTransform mission_rect = mission.GetComponent<Button>().GetComponent<RectTransform>();
+            mission_rect.anchoredPosition = new Vector2(0, 30 + (-60 * count));
+            mission_rect.offsetMax = new Vector2(0, mission_rect.offsetMax.y);
+            mission_rect.offsetMin = new Vector2(0, mission_rect.offsetMin.y);
+            count += 1;
+        } 
+
+        Destroy(gameObject);
     }
 
     public Text NameLabel;
     public Text RewardLabel;
     public Button MissionButton;
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start () {
         guild = GameObject.Find("Guild").GetComponent<Guild>();
         guild.Missions.Add(gameObject);
 
@@ -60,13 +112,16 @@ public class Mission : MonoBehaviour {
         ID = ID + 1;
         Name = "Mission " + ID;
         Reward = UnityEngine.Random.Range(0, 100);
+        Duration = 10;
         MaxAdventurers = 2;
         isSelected = false;
         isAvailable = true;
-        isFulfilled = false;
+        isRunning = false;
+        isFinished = false;
 
         NameLabel.text = Name;
         RewardLabel.text = Reward.ToString();
+        Description = "Hello World: " + Name;
 
         // For the first created mission is selected automatically in order to ensure that 
         // never an adventure can be selected without having a mission selected.
@@ -79,6 +134,13 @@ public class Mission : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         adjustButtonColor();
+
+        if (isFinished)
+            removeMission();
+
+        if (elapsed_time >= Duration)
+            endMission();
+
 	}
 
     private void adjustButtonColor()
@@ -89,13 +151,6 @@ public class Mission : MonoBehaviour {
             MissionButton.image.color = Color.gray;
         else
             MissionButton.image.color = Color.green;
-    }
-
-
-    public void selectDifferentActiveMission(Mission mission)
-    {
-        isSelected = false;
-        mission.onClicked();
     }
 
     // Only if the mission is available.
@@ -111,6 +166,7 @@ public class Mission : MonoBehaviour {
 
                 isSelected = true;
                 guild.SelectedMission = gameObject;
+                guild.MissionDescription.text = Description;
             }
         }
     }

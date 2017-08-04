@@ -89,6 +89,7 @@ public class Calendar : MonoBehaviour {
         {
             hours += 1;
             total_hours += 1;
+            newHour(new EventArgs());
 
             if (nextDailyEvent == hours)
                 onDailyEventTrigger(new EventArgs());
@@ -209,5 +210,13 @@ public class Calendar : MonoBehaviour {
         if (handler != null)
             handler(this, e);
 
+    }
+
+    public event EventHandler<EventArgs> hourlyTrigger;
+    protected virtual void newHour(EventArgs e)
+    {
+        EventHandler<EventArgs> handler = hourlyTrigger;
+        if (handler != null)
+            handler(this, e);
     }
 }
