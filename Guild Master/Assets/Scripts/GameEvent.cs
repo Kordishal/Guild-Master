@@ -15,17 +15,13 @@ public class GameEvent : MonoBehaviour {
     public GameEventDatabase.EventFrequencyType Frequency;
     public GameEventDatabase.EventType Type;
     public int Weight;
-    public UnityAction Effect;
+    public UnityAction AfterEffect;
 
 
     public Image EventImage;
     public Text EventTitle;
     public Text EventDescription;
     public Button EventButton;
-
-    public GameObject PrefabDialogBox;
-
-    private GameObject InstantiatedDialogBox;
 
 	// Use this for initialization
 	void Start () {
@@ -34,30 +30,62 @@ public class GameEvent : MonoBehaviour {
 
         guild = GameObject.Find("Guild").GetComponent<Guild>();
 
-        InstantiatedDialogBox = Instantiate(PrefabDialogBox);
-        InstantiatedDialogBox.transform.SetParent(GameObject.Find("OverlayCanvas").transform);
-        RectTransform rect_dialog = InstantiatedDialogBox.GetComponent<RectTransform>();
+        // Put to dialog box into the center of the screen.
+        transform.SetParent(GameObject.Find("OverlayCanvas").transform);
+        RectTransform rect_dialog = GetComponent<RectTransform>();
         rect_dialog.anchoredPosition = new Vector2(0, 0);
 
-        EventTitle = InstantiatedDialogBox.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>();
-        EventImage = InstantiatedDialogBox.transform.GetChild(1).gameObject.GetComponent<Image>();
-        EventDescription = InstantiatedDialogBox.transform.GetChild(2).gameObject.GetComponent<Text>();
-        EventButton = InstantiatedDialogBox.transform.GetChild(3).gameObject.GetComponent<Button>();
+        EventTitle = transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>();
+        EventImage = transform.GetChild(1).gameObject.GetComponent<Image>();
+        EventDescription = transform.GetChild(2).gameObject.GetComponent<Text>();
+        EventButton = transform.GetChild(3).gameObject.GetComponent<Button>();
 
-        EventButton.onClick.AddListener(OnClick_Ok);
+        Debug.Log("Set UP Event");
+        chooseEvent();
 
-        GameEventDatabase.GameEventImplementation game_event = GameEventDatabase.GAME_EVENTS[0];
+    }
 
-        Frequency = game_event.FrequencyType;
-        Type = game_event.Type;
-        Weight = game_event.Weight;
-        Effect = game_event.Effect;
 
-        EventTitle.text = game_event.EventTitle;
-        EventImage = Resources.Load(game_event.EventImagePath) as Image;
-        EventDescription.text = game_event.EventDescription;
+    private void chooseEvent()
+    {
+        int total_weight = 0;
+        for (int i = 0; i < GameEventDatabase.GAME_EVENTS.Count; i++)
+        {
+            total_weight += GameEventDatabase.GAME_EVENTS[i].Weight;
+        }
 
-        EventButton.onClick.AddListener(Effect);
+        Debug.Log("Total Weight: " + total_weight);
+
+        int dice_result = UnityEngine.Random.Range(0, total_weight);
+        Debug.Log("Dice Result: " + dice_result);
+
+        int current_weight = 0;
+        int previous_weight = 0;
+        GameEventDatabase.GameEventImplementation chosen_game_event = null;
+        for (int i = 0; i < GameEventDatabase.GAME_EVENTS.Count; i++)
+        {
+            current_weight += GameEventDatabase.GAME_EVENTS[i].Weight;
+            if (dice_result >= previous_weight && current_weight > dice_result)
+            {
+                chosen_game_event = GameEventDatabase.GAME_EVENTS[i];
+                break;
+            }
+            previous_weight += GameEventDatabase.GAME_EVENTS[i].Weight;
+        }
+        Debug.Log("Chosen Event Title: " + chosen_game_event.EventTitle);
+
+        Frequency = chosen_game_event.FrequencyType;
+        Type = chosen_game_event.Type;
+        Weight = chosen_game_event.Weight;
+        AfterEffect = chosen_game_event.AfterEffect;
+
+        EventTitle.text = chosen_game_event.EventTitle;
+        EventImage = Resources.Load(chosen_game_event.EventImagePath) as Image;
+        EventDescription.text = chosen_game_event.EventDescription;
+
+        chosen_game_event.ImmediateEffect();
+
+        EventButton.onClick.AddListener(AfterEffect);
     }
 
     // Update is called once per frame
@@ -68,6 +96,6 @@ public class GameEvent : MonoBehaviour {
 
     public void OnClick_Ok()
     {
-        Destroy(InstantiatedDialogBox, 0.1f);
+        Destroy(gameObject, 0.1f);
     }
 }

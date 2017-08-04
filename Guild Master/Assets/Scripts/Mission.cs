@@ -11,6 +11,10 @@ public class Mission : MonoBehaviour {
     public double Reward;
     public int MaxAdventurers;
 
+    static private int current_missions;
+
+    private Guild guild;
+
     public bool isAvailable;
     public bool isSelected;
     public bool isFulfilled;
@@ -31,15 +35,28 @@ public class Mission : MonoBehaviour {
 
 
         isFulfilled = true;
+        current_missions -= 1;
     }
 
     public Text NameLabel;
     public Text RewardLabel;
-
     public Button MissionButton;
 
 	// Use this for initialization
 	void Start () {
+        guild = GameObject.Find("Guild").GetComponent<Guild>();
+        guild.Missions.Add(gameObject);
+
+        // Puts the mission button into the scroll view.
+        MissionButton.transform.SetParent(guild.MissionView.transform.GetChild(0).GetChild(0));
+        RectTransform mission_rect = MissionButton.GetComponent<RectTransform>();
+        mission_rect.anchoredPosition = new Vector2(0, 30 + (-60 * (guild.Missions.Count)));
+        mission_rect.offsetMax = new Vector2(0, mission_rect.offsetMax.y);
+        mission_rect.offsetMin = new Vector2(0, mission_rect.offsetMin.y);
+
+        RectTransform content_rect = guild.MissionView.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>();
+        content_rect.offsetMin = new Vector2(content_rect.offsetMin.x, content_rect.offsetMin.y - 60);
+
         ID = ID + 1;
         Name = "Mission " + ID;
         Reward = UnityEngine.Random.Range(0, 100);
@@ -51,13 +68,11 @@ public class Mission : MonoBehaviour {
         NameLabel.text = Name;
         RewardLabel.text = Reward.ToString();
 
-        MissionButton.onClick.AddListener(onClicked);
-
         // For the first created mission is selected automatically in order to ensure that 
         // never an adventure can be selected without having a mission selected.
         if (ID == 1)
         {
-            onSelected(new EventArgs());
+            onClicked();
         }
 	}
 	
@@ -69,7 +84,7 @@ public class Mission : MonoBehaviour {
     private void adjustButtonColor()
     {
         if (isSelected)
-            MissionButton.image.color = Color.blue;
+           MissionButton.image.color = Color.blue;
         else if (!isAvailable)
             MissionButton.image.color = Color.gray;
         else
@@ -87,15 +102,16 @@ public class Mission : MonoBehaviour {
     public void onClicked()
     {
         if (isAvailable)
-            onSelected(new EventArgs());
-    }
+        {
+            if (!isSelected)
+            {
+                foreach (GameObject o in guild.Missions)
+                    if (o.GetComponent<Mission>().isSelected)
+                        o.GetComponent<Mission>().isSelected = false;
 
-    public event EventHandler<EventArgs> OnSelected;
-    protected virtual void onSelected(EventArgs e)
-    {
-        EventHandler<EventArgs> handler = OnSelected;
-        if (handler != null)
-            handler(this, e);
-
+                isSelected = true;
+                guild.SelectedMission = gameObject;
+            }
+        }
     }
 }
