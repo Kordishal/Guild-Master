@@ -103,7 +103,7 @@ public class Calendar : MonoBehaviour {
                 total_days += 1;
 
                 current_weekday += 1;
-                if (current_weekday > weekdays.Length)
+                if (current_weekday >= weekdays.Length)
                     current_weekday = 0;
                 
 
