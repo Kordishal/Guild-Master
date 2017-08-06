@@ -35,6 +35,8 @@ public class Guild : MonoBehaviour {
         }
     }
 
+    public Location GuildHall;
+
     public ScrollRect AdventurerView;
     public ScrollRect MissionView;
 
@@ -62,14 +64,22 @@ public class Guild : MonoBehaviour {
             Mission m = getSelectedMission;
             List<Adventurer> advs = getSelectedAdventurers;
             getSelectedMission.isAvailable = false;
-            foreach (GameObject o in Missions)
+            getSelectedMission.isSelected = false;
+            SelectedMission = null;
+            // Only select a new mission if there is more than one available.
+            if (Missions.Count > 1)
             {
-                if (o.GetComponent<Mission>().isAvailable)
+                foreach (GameObject o in Missions)
                 {
-                    o.GetComponent<Mission>().onClicked();
-                    continue; // Once a new mission is selected move on.
-                }                
-            }               
+                    if (o.GetComponent<Mission>().isAvailable)
+                    {
+                        o.GetComponent<Mission>().onClicked();
+                        break; // Once a new mission is selected move on.
+                    }
+                }
+            }
+
+              
             foreach (Adventurer a in getSelectedAdventurers)
             {
                 a.onClicked();
@@ -77,6 +87,11 @@ public class Guild : MonoBehaviour {
             }
 
             m.startMission(advs);
+
+            foreach (var adv in getSelectedAdventurers)
+                adv.isSelected = false;
+
+            SelectedAdventurers.Clear();
         }
         else
         {
@@ -103,6 +118,8 @@ public class Guild : MonoBehaviour {
 
         Calendar.dailyEventTrigger += fireDailyEvent;
 
+        GuildHall = World.GuildHall;
+
         // Create a bunch of missions and adventurers to begin with.
 
         for (int i = 0; i < 5; i++)
@@ -120,7 +137,6 @@ public class Guild : MonoBehaviour {
 
     public void fireDailyEvent(object sender, EventArgs e)
     {
-        Debug.Log("Fire Event");
         GameObject game_event = Instantiate(EventDialogBox);
     }
 
