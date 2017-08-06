@@ -10,6 +10,10 @@ public class Adventurer : MonoBehaviour {
     public string Name;
     public int Level;
 
+    public List<AdventurerSkills.Skill> Skills;
+
+    public Location Location;
+
     public double Cost;
     public bool isSelected;
     public bool isAvailable;
@@ -49,13 +53,20 @@ public class Adventurer : MonoBehaviour {
         isSelected = false;
         isAvailable = true;
 
-        AdventurerButton.onClick.AddListener(onClicked);
+        Skills = new List<AdventurerSkills.Skill>(AdventurerSkills.AllSkills);
+
+        foreach (AdventurerSkills.Skill skill in Skills)
+            skill.Level += UnityEngine.Random.Range(1, 10);
+
+        Location = World.GuildHall;
+        Location.Adventurers.Add(this);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
         adjustButtonColor();
-	}
+    }
 
     public void onClicked()
     {
@@ -87,4 +98,6 @@ public class Adventurer : MonoBehaviour {
         else
             AdventurerButton.image.color = Color.green;
     }
+
+
 }
