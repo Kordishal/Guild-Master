@@ -39,10 +39,7 @@ public class GameEvent : MonoBehaviour {
         EventImage = transform.GetChild(1).gameObject.GetComponent<Image>();
         EventDescription = transform.GetChild(2).gameObject.GetComponent<Text>();
         EventButton = transform.GetChild(3).gameObject.GetComponent<Button>();
-
-        Debug.Log("Set UP Event");
         chooseEvent();
-
     }
 
 
@@ -54,10 +51,7 @@ public class GameEvent : MonoBehaviour {
             total_weight += GameEventDatabase.GAME_EVENTS[i].Weight;
         }
 
-        Debug.Log("Total Weight: " + total_weight);
-
         int dice_result = UnityEngine.Random.Range(0, total_weight);
-        Debug.Log("Dice Result: " + dice_result);
 
         int current_weight = 0;
         int previous_weight = 0;
@@ -72,7 +66,6 @@ public class GameEvent : MonoBehaviour {
             }
             previous_weight += GameEventDatabase.GAME_EVENTS[i].Weight;
         }
-        Debug.Log("Chosen Event Title: " + chosen_game_event.EventTitle);
 
         Frequency = chosen_game_event.FrequencyType;
         Type = chosen_game_event.Type;
