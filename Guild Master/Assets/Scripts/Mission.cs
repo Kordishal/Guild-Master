@@ -19,10 +19,12 @@ public class Mission : MonoBehaviour {
 
     public LinkedListNode<Stage> CurrentStage;
     public LinkedList<Stage> Stages;
-    public PMC.Item TargetItem;
+
     public Location Destination;
 
-    public MissionType Type;
+    public PMC.Target Target;
+
+    public MissionGoal Type;
 
     private Guild guild;
 
@@ -48,7 +50,7 @@ public class Mission : MonoBehaviour {
     {
         Debug.Log("Running Mission: " + Name + " on Stage: " + CurrentStage.Value.Name);
 
-        CurrentStage.Value.Action();
+        CurrentStage.Value.Action(this);
 
         CurrentStage.Value.Repeated += 1;
 
@@ -203,23 +205,27 @@ public class Mission : MonoBehaviour {
 
     private void generateMission()
     {
-        Type = MissionType.FindItem;
+        Type = MissionGoal.RetrieveTarget;
+        Destination = World.Places[UnityEngine.Random.Range(0, World.Places.Count)];
+        Target = PMC.Items[UnityEngine.Random.Range(0, PMC.Items.Count)];
+
         MaxAdventurers = 1;
 
-        Destination = World.Places[UnityEngine.Random.Range(0, World.Places.Count)];
-
         Reward = UnityEngine.Random.Range(50, 100);
-        TargetItem = PMC.Items[UnityEngine.Random.Range(0, PMC.Items.Count)]; 
 
-        Name = "Mission: Find the " + TargetItem.Name;
-        Description = "The " + TargetItem.Name + " has been lost. Please find it for us!";
-
+        // Stages of the missions a adventurer has to go throught.
         Stages = new LinkedList<Stage>();
 
-        Stages.AddFirst(new Stage("Go To Location", 3, AdventurerSkills.SkillNames.Walking, goToLocationOfMission, -1));
-        Stages.AddLast(new Stage("Investigate For Lost Item", 2, AdventurerSkills.SkillNames.Investigate, useSkill, 5));
-        Stages.AddLast(new Stage("Search For Lost Item", 4, AdventurerSkills.SkillNames.Perception, useSkill, 10));
-        Stages.AddLast(new Stage("Return To Guild Hall", 1, AdventurerSkills.SkillNames.Walking, returnToGuildHall, -1));
+        // Travel Stages        
+        Stages.AddFirst(PMC.Stages[(int)PMC.StageIndexes.goToDestination]);
+        
+        // Fullfil Mission Stages
+             
+        Stages.AddLast(PMC.Stages[(int)PMC.StageIndexes.RetrieveTarget]);
+
+        // Travel Back Stages
+
+        Stages.AddLast(PMC.Stages[(int)PMC.StageIndexes.ReturnToGuild]);
 
         CurrentStage = Stages.First;
 
@@ -236,78 +242,126 @@ public class Mission : MonoBehaviour {
         debug_string += temp.Value.Name + "!";
         Debug.Log(debug_string);
 
+
+        Name = "Mission: Find the " + Target.Name;
+        Description = "The " + Target.Name + " has been lost. Please find it for us!";
     }
 
-    public void returnToGuildHall()
-    {
-        if (CurrentLocation.Value == guild.GuildHall)
-            CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
-        else
-        {
-            int distance_required = World.Distance(CurrentLocation.Value, CurrentLocation.Previous.Value);
-            if (CurrentStage.Value.StepsDone == distance_required)
-            {
-                CurrentStage.Value.StepsDone = 0;
-                CurrentLocation = CurrentLocation.Previous;
-            }            
-            else
-                CurrentStage.Value.StepsDone += 1;
-        }
-    }
-
-    public void goToLocationOfMission()
-    {
-        if (CurrentLocation.Value == Destination)
-            CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
-        else
-        {
-            int distance_required = World.Distance(CurrentLocation.Value, CurrentLocation.Next.Value);
-
-            if (CurrentStage.Value.StepsDone == distance_required)
-            {
-                CurrentStage.Value.StepsDone = 0;
-                CurrentLocation = CurrentLocation.Next;
-            }             
-            else
-                CurrentStage.Value.StepsDone += 1;
-        }
-    }
-
-    public void useSkill()
-    {   
-        Adventurer hightest_skill_level = adventurers_running_the_mission[0];
-
-        // Determine the adventurer with the highest skill level in the party for skill use.
-        foreach (Adventurer adv in adventurers_running_the_mission)
-            if (adv.Skills.Find(y => y.Name == CurrentStage.Value.Skill).Level > hightest_skill_level.Skills.Find(y => y.Name == CurrentStage.Value.Skill).Level)
-                hightest_skill_level = adv;
-
-        int result = hightest_skill_level.Skills.Find(y => y.Name == CurrentStage.Value.Skill).throwDiceVs(CurrentStage.Value.Difficulty);
-
-        if (result <= -20)
-            CurrentStage.Value.FinishedWith = Stage.FinishState.CriticalFailure;
-        else if (result <= 0)
-            CurrentStage.Value.FinishedWith = Stage.FinishState.Failure;
-        else if (result > 0)
-            CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
-        else if (result > 20)
-            CurrentStage.Value.FinishedWith = Stage.FinishState.CriticalSuccess; 
-    }
-
+ 
 
     /// <summary>
     /// Class for procedural mission content.
     /// </summary>
     public class PMC
     {
-        static public List<Item> Items = new List<Item>() { new Item("Cat", true), new Item("Family Heirloom", false)};
+        static PMC()
+        {
+            Stages = new Stage[(int)StageIndexes.MAX_STAGES];
 
-        public struct Item
+            Stages[(int)StageIndexes.goToDestination] = new Stage("Go To Location", 3, AdventurerSkills.SkillNames.Walking, goToLocationOfMission, -1);
+            Stages[(int)StageIndexes.RetrieveTarget] = new Stage("Search For Lost Item", 4, AdventurerSkills.SkillNames.Vision , useSkill, 10);
+            Stages[(int)StageIndexes.ReturnToGuild] = new Stage("Return To Guild Hall", 1, AdventurerSkills.SkillNames.Walking, returnToGuildHall, -1);
+        }
+
+        static public Stage[] Stages;
+
+        public enum StageIndexes
+        {
+            goToDestination,
+            RetrieveTarget,
+            ReturnToGuild,
+            MAX_STAGES
+        }
+
+        static public List<Target> Items = new List<Target>() {
+            new Target("Cat", Category.Animal),
+            new Target("Dog", Category.Animal),
+            new Target("Bird", Category.Animal),
+            new Target("Necklace", Category.Item),
+            new Target("Trinket", Category.Item),
+            new Target("Sword", Category.Item),
+            new Target("Magical Herb", Category.Plant),
+            new Target("Herb", Category.Plant),
+            new Target("Brother", Category.Person),
+            new Target("Sister", Category.Person),
+        };
+
+        public class Target
         {
             public string Name;
-            public bool isAnimal;
+            public Category Category;
 
-            public Item(string name, bool is_animal) { Name = name; isAnimal = is_animal; }
+            public Target(string name, Category category)
+            {
+                Name = name;
+                Category = category;
+            }
+        }
+
+
+        static private void returnToGuildHall(Mission mission)
+        {
+            if (mission.CurrentLocation.Value == mission.guild.GuildHall)
+                mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
+            else
+            {
+                int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Previous.Value);
+                if (mission.CurrentStage.Value.StepsDone == distance_required)
+                {
+                    mission.CurrentStage.Value.StepsDone = 0;
+                    mission.CurrentLocation = mission.CurrentLocation.Previous;
+                }
+                else
+                    mission.CurrentStage.Value.StepsDone += 1;
+            }
+        }
+
+        static private void goToLocationOfMission(Mission mission)
+        {
+            if (mission.CurrentLocation.Value == mission.Destination)
+                mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
+            else
+            {
+                int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Next.Value);
+
+                if (mission.CurrentStage.Value.StepsDone == distance_required)
+                {
+                    mission.CurrentStage.Value.StepsDone = 0;
+                    mission.CurrentLocation = mission.CurrentLocation.Next;
+                }
+                else
+                    mission.CurrentStage.Value.StepsDone += 1;
+            }
+        }
+
+        static private void useSkill(Mission mission)
+        {
+            Adventurer hightest_skill_level = mission.adventurers_running_the_mission[0];
+
+            // Determine the adventurer with the highest skill level in the party for skill use.
+            foreach (Adventurer adv in mission.adventurers_running_the_mission)
+                if (adv.Skills.Find(y => y.Name == mission.CurrentStage.Value.Skill).Level > hightest_skill_level.Skills.Find(y => y.Name == mission.CurrentStage.Value.Skill).Level)
+                    hightest_skill_level = adv;
+
+            int result = hightest_skill_level.Skills.Find(y => y.Name == mission.CurrentStage.Value.Skill).throwDiceVs(mission.CurrentStage.Value.Difficulty);
+
+            if (result <= -20)
+                mission.CurrentStage.Value.FinishedWith = Stage.FinishState.CriticalFailure;
+            else if (result <= 0)
+                mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Failure;
+            else if (result > 0)
+                mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
+            else if (result > 20)
+                mission.CurrentStage.Value.FinishedWith = Stage.FinishState.CriticalSuccess;
+        }
+
+
+        public enum Category
+        {
+            Item,
+            Animal,
+            Plant,
+            Person,
         }
     }
 
@@ -343,15 +397,17 @@ public class Mission : MonoBehaviour {
             CriticalSuccess
         }
 
-        public delegate void StageAction();
+        public delegate void StageAction(Mission mission);
 
 
 
     }
 
-    public enum MissionType
+    public enum MissionGoal
     {
-        FindItem,
-        KillBeast,
+        RetrieveTarget,
+        //KillTarget,
+        //StealTarget,
+        //ExploreLocation,
     }
 }
