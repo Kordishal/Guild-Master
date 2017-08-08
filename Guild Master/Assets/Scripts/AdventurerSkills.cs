@@ -4,18 +4,21 @@ using UnityEngine;
 
 public class AdventurerSkills : MonoBehaviour {
 
-    public static List<Skill> AllSkills;
+    public static Skill[] AllSkills;
 
 	// Use this for initialization
 	void Start () {
 
-        AllSkills = new List<Skill>();
+        AllSkills = new Skill[(int)SkillNames.LAST_ENTRY];
 
-        for (int i = 0; i < (int)SkillNames.LAST_ENTRY; i++)
-        {
-            AllSkills.Add(new Skill((SkillNames)System.Enum.GetValues(typeof(SkillNames)).GetValue(i), 0));
-        }
-	}
+        // Movement Skills:
+
+        AllSkills[(int)SkillNames.Walking] = new Skill("Walking", SkillType.Movement, 0, 0, 1, 100, 500, 0.01f);
+        AllSkills[(int)SkillNames.Running] = new Skill("Running", SkillType.Movement, 0, 0, 1, 300, 20, 0.005f);
+        AllSkills[(int)SkillNames.Riding] = new Skill("Horse Riding", SkillType.Movement, 0, 0, 1, 500, 500, 0.01f);
+        AllSkills[(int)SkillNames.Teleportation] = new Skill("Teleporting", SkillType.Movement, 0, 0, 1, 10, 10, 0.1f);
+        AllSkills[(int)SkillNames.PortalCreation] = new Skill("Portal Creation", SkillType.Movement, 0, 0, 1, 10, 10, 0.1f);
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -25,31 +28,79 @@ public class AdventurerSkills : MonoBehaviour {
 
     public class Skill
     {
-        public SkillNames Name;
+        public string Name;
+        public SkillType Type;
+
         public int Level;
+        public int Experience;
+        public int ExperienceForNextLevel;
+
+        public double PrimaryValue;
+        public double SecondaryValue;
+        public double LevelMultiplier;
+
+        public Skill(string name, SkillType type, int level, int experience, int experienceForNextLevel, double primaryValue, double secondaryValue, double levelMultiplier)
+        {
+            Name = name;
+            Type = type;
+            Level = level;
+            Experience = experience;
+            ExperienceForNextLevel = experienceForNextLevel;
+            PrimaryValue = primaryValue;
+            SecondaryValue = secondaryValue;
+            LevelMultiplier = levelMultiplier;
+        }
+
         public int throwDiceVs(int Difficulty)
         {
             return UnityEngine.Random.Range(0, 20) + Level - Difficulty;
         }
 
-        public Skill(SkillNames name, int level)
+        public void addExperience(int experience)
         {
-            Name = name;
-            Level = level;
-        }
+            Experience += experience;
 
+            if (Experience >= ExperienceForNextLevel)
+            {
+                Experience = Experience - ExperienceForNextLevel;
+                Level += 1;
+                ExperienceForNextLevel = ExperienceForNextLevel + Level;
+                PrimaryValue += PrimaryValue * LevelMultiplier;
+            }
+        }
 
     }
 
     public enum SkillNames
     {
+        // Movement
         Walking,
-        Investigate,
+        Running,
+        Riding,
+        Teleportation,
+        PortalCreation,
+
+        // Perception
+        Vision,
         Tracking,
-        Perception,
+
+        // Social
+        Investigate,
+
+        // Combat
 
 
 
-        LAST_ENTRY
+
+        LAST_ENTRY,
+
+    }
+
+    public enum SkillType
+    {
+        Movement,
+        Combat,
+        Social,
+        Perception
     }
 }
