@@ -12,7 +12,7 @@ public class Mission : MonoBehaviour {
     public string Description;
 
     public int MaxAdventurers;
-    private List<Adventurer> adventurers_running_the_mission;
+    public Party Adventurers;
 
     public LinkedListNode<Location> CurrentLocation;
     public LinkedList<Location> PathToMissionLocation;
@@ -39,8 +39,8 @@ public class Mission : MonoBehaviour {
     public void startMission(List<Adventurer> adventurers)
     {
         isRunning = true;
-        adventurers_running_the_mission = new List<Adventurer>(adventurers);
-        foreach (Adventurer a in adventurers_running_the_mission)
+        var Party = new Party(adventurers);
+        foreach (Adventurer a in Party.Members)
             a.isAvailable = false;
 
         guild.Calendar.hourlyTrigger += runningMission;
@@ -96,7 +96,7 @@ public class Mission : MonoBehaviour {
         if (isSuccess)
         {
             double full_reward = Reward;
-            foreach (Adventurer a in adventurers_running_the_mission)
+            foreach (Adventurer a in Adventurers.Members)
             {
                 Reward = Reward - (full_reward * a.Cost);
                 a.isAvailable = true;
@@ -258,9 +258,9 @@ public class Mission : MonoBehaviour {
         {
             Stages = new Stage[(int)StageIndexes.MAX_STAGES];
 
-            Stages[(int)StageIndexes.goToDestination] = new Stage("Go To Location", 3, AdventurerSkills.SkillNames.Walking, goToLocationOfMission, -1);
-            Stages[(int)StageIndexes.RetrieveTarget] = new Stage("Search For Lost Item", 4, AdventurerSkills.SkillNames.Vision , useSkill, 10);
-            Stages[(int)StageIndexes.ReturnToGuild] = new Stage("Return To Guild Hall", 1, AdventurerSkills.SkillNames.Walking, returnToGuildHall, -1);
+            Stages[(int)StageIndexes.goToDestination] = new Stage("Go To Location", 3, goToLocationOfMission, -1);
+            Stages[(int)StageIndexes.RetrieveTarget] = new Stage("Search For Lost Item", 4, retrieveTarget, 10);
+            Stages[(int)StageIndexes.ReturnToGuild] = new Stage("Return To Guild Hall", 1, returnToGuildHall, -1);
         }
 
         static public Stage[] Stages;
@@ -306,13 +306,21 @@ public class Mission : MonoBehaviour {
             else
             {
                 int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Previous.Value);
-                if (mission.CurrentStage.Value.StepsDone == distance_required)
+
+                if (mission.CurrentStage.Value.DistanceTraveled >= distance_required)
                 {
-                    mission.CurrentStage.Value.StepsDone = 0;
+                    mission.CurrentStage.Value.DistanceTraveled = 0;
                     mission.CurrentLocation = mission.CurrentLocation.Previous;
                 }
                 else
-                    mission.CurrentStage.Value.StepsDone += 1;
+                {
+                    var travel = mission.Adventurers.getFastestTravel();
+
+                    if (travel.Distance > 0)
+                    {
+                        mission.CurrentStage.Value.DistanceTraveled += travel.Distance;
+                    }
+                }
             }
         }
 
@@ -324,26 +332,52 @@ public class Mission : MonoBehaviour {
             {
                 int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Next.Value);
 
-                if (mission.CurrentStage.Value.StepsDone == distance_required)
+                if (mission.CurrentStage.Value.DistanceTraveled >= distance_required)
                 {
-                    mission.CurrentStage.Value.StepsDone = 0;
+                    mission.CurrentStage.Value.DistanceTraveled = 0;
                     mission.CurrentLocation = mission.CurrentLocation.Next;
                 }
                 else
-                    mission.CurrentStage.Value.StepsDone += 1;
+                {
+                    var travel = mission.Adventurers.getFastestTravel();
+
+                    if (travel.Distance > 0)
+                    {
+                        mission.CurrentStage.Value.DistanceTraveled += travel.Distance;
+                    }
+                }
             }
         }
 
-        static private void useSkill(Mission mission)
+        static private void retrieveTarget(Mission mission)
         {
-            Adventurer hightest_skill_level = mission.adventurers_running_the_mission[0];
+            AdventurerSkills.SkillNames used_skill_name = AdventurerSkills.SkillNames.LAST_ENTRY;
 
-            // Determine the adventurer with the highest skill level in the party for skill use.
-            foreach (Adventurer adv in mission.adventurers_running_the_mission)
-                if (adv.Skills.Find(y => y.Name == mission.CurrentStage.Value.Skill).Level > hightest_skill_level.Skills.Find(y => y.Name == mission.CurrentStage.Value.Skill).Level)
-                    hightest_skill_level = adv;
+            switch (mission.Target.Category)
+            {
+                case Category.Animal:
+                    used_skill_name = AdventurerSkills.SkillNames.Tracking;
+                    break;
+                case Category.Item:
+                    used_skill_name = AdventurerSkills.SkillNames.Searching;
+                    break;
+                case Category.Person:
+                    used_skill_name = AdventurerSkills.SkillNames.Tracking;
+                    break;
+                case Category.Plant:
+                    used_skill_name = AdventurerSkills.SkillNames.Searching;
+                    break;
+            }
 
-            int result = hightest_skill_level.Skills.Find(y => y.Name == mission.CurrentStage.Value.Skill).throwDiceVs(mission.CurrentStage.Value.Difficulty);
+            AdventurerSkills.Skill used_skill = mission.Adventurers.Members[0].Skills[(int)used_skill_name];
+
+            for (int i = 1; i < mission.Adventurers.Members.Count; i++)
+                if (used_skill.Level < mission.Adventurers.Members[i].Skills[(int)used_skill_name].Level)
+                    used_skill = mission.Adventurers.Members[i].Skills[(int)used_skill_name];
+
+            int result = used_skill.throwDiceVs(mission.CurrentStage.Value.Difficulty);
+
+            Debug.Log("Result: " + result);
 
             if (result <= -20)
                 mission.CurrentStage.Value.FinishedWith = Stage.FinishState.CriticalFailure;
@@ -372,18 +406,16 @@ public class Mission : MonoBehaviour {
     {
         public string Name;
         public int Difficulty;
-        public AdventurerSkills.SkillNames Skill;
         public StageAction Action;
         public int Repeatability;
         public int Repeated = 0;
-        public int StepsDone;
+        public double DistanceTraveled;
         public FinishState FinishedWith = FinishState.None;
 
-        public Stage(string name, int difficulty, AdventurerSkills.SkillNames skill, StageAction action, int repeatability)
+        public Stage(string name, int difficulty, StageAction action, int repeatability)
         {
             Name = name;
             Difficulty = difficulty;
-            Skill = skill;
             Action = action;
             Repeatability = repeatability;
         }
