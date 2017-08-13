@@ -114,6 +114,7 @@ public class Mission : MonoBehaviour {
     private void removeMission()
     {
         guild.Missions.Remove(gameObject);
+        guild.RunningMissions.Remove(this);
         MissionButton.enabled = false;
         guild.Calendar.hourlyTrigger -= runningMission;
 

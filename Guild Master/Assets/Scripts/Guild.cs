@@ -163,6 +163,10 @@ public class Guild : MonoBehaviour {
 	void Update () {
         if (SelectedMission != null & SelectedAdventurers.Count > 0)
             StartMission.enabled = true;
+
+        if (RunningMissions.Count == 0)
+            defaultValuesRunningMissionDisplay();
+
 	}
 
     public void fireDailyEvent(object sender, EventArgs e)
@@ -170,7 +174,21 @@ public class Guild : MonoBehaviour {
         GameObject game_event = Instantiate(EventDialogBox);
     }
 
-
-
-
+    private void defaultValuesRunningMissionDisplay()
+    {
+        GameObject.Find("RunningMissionTitle").GetComponent<Text>().text = "";
+        GameObject.Find("RunningMissionDescription").GetComponent<Text>().text = "No Missions Running";
+        GameObject.Find("RunningMissionReward").GetComponent<Text>().text = "0";
+        GameObject.Find("RunningMissionMaxAdventurers").GetComponent<Text>().text = "0";
+        GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = "None";
+        GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = "-------";
+        GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = "----";
+        GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = "0";
+        GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = "0";
+    }
 }
+
+
+
+
+
