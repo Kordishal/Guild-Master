@@ -9,7 +9,7 @@ public class Party {
     public Travel getFastestTravel()
     {
         // get all the movement stuff and figure out which one goes the fastest and the furthest. 
-
+        Debug.Log("TRAVEL DISTANCE CALC");
         double max_distance_walking = int.MaxValue;
         bool all_adventurers_can_still_walk = true;
 
@@ -36,6 +36,12 @@ public class Party {
         }
     }
 
+    public void useGroupSkill(AdventurerSkills.SkillNames skill)
+    {
+        foreach (Adventurer a in Members)
+            a.Skills[(int)skill].CurrentUses += 1;
+    }
+
 
     public struct Travel
     {
@@ -52,6 +58,15 @@ public class Party {
     public Party(List<Adventurer> adventurers)
     {
         Members = adventurers;
+    }
+
+    public override string ToString()
+    {
+        string print = "";
+        foreach (Adventurer a in Members)
+            print += a.Name + " | ";
+
+        return print;
     }
 
 }
