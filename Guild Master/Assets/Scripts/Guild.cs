@@ -35,6 +35,10 @@ public class Guild : MonoBehaviour {
         }
     }
 
+    public GameObject CurrentRunningMissionDisplayBox;
+    public LinkedListNode<Mission> CurrentDisplayedMission;
+    public LinkedList<Mission> RunningMissions;
+
     public Location GuildHall;
 
     public ScrollRect AdventurerView;
@@ -86,6 +90,15 @@ public class Guild : MonoBehaviour {
                 a.isAvailable = false;
             }
 
+            RunningMissions.AddLast(m);
+
+            if (RunningMissions.Count == 1)
+            {
+                CurrentDisplayedMission = RunningMissions.First;
+                m.isDisplayed = true;
+            }
+                
+
             m.startMission(advs);
 
             foreach (var adv in getSelectedAdventurers)
@@ -102,6 +115,22 @@ public class Guild : MonoBehaviour {
 
     }
 
+    public void onNextMissionClick()
+    {
+        if (RunningMissions.Count <= 1)
+            return;
+
+        CurrentDisplayedMission.Value.isDisplayed = false;
+
+        if (CurrentDisplayedMission == RunningMissions.Last)
+            CurrentDisplayedMission = RunningMissions.First;
+        else
+            CurrentDisplayedMission = CurrentDisplayedMission.Next;
+
+        CurrentDisplayedMission.Value.isDisplayed = true;
+    }
+
+
 	// Use this for initialization
 	void Start () {
         UnityEngine.Random.InitState(10100);
@@ -113,6 +142,7 @@ public class Guild : MonoBehaviour {
         SelectedAdventurers = null;
 
         SelectedAdventurers = new List<GameObject>();
+        RunningMissions = new LinkedList<Mission>();
 
         ErrorMessages.text = "Everything is Okay";
 

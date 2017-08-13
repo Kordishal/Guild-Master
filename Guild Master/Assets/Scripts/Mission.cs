@@ -28,19 +28,21 @@ public class Mission : MonoBehaviour {
 
     private Guild guild;
 
-
     public bool isSelected;
+    public bool isDisplayed;
 
     public bool isAvailable;
     public bool isRunning;
     public bool isSuccess;
     public bool isFinished;
 
+
+
     public void startMission(List<Adventurer> adventurers)
     {
         isRunning = true;
-        var Party = new Party(adventurers);
-        foreach (Adventurer a in Party.Members)
+        Adventurers = new Party(adventurers);
+        foreach (Adventurer a in Adventurers.Members)
             a.isAvailable = false;
 
         guild.Calendar.hourlyTrigger += runningMission;
@@ -173,7 +175,40 @@ public class Mission : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         adjustButtonColor();
+
+        if (isRunning && isDisplayed)
+            printMission();
 	}
+
+    private void printMission()
+    {
+        GameObject.Find("RunningMissionTitle").GetComponent<Text>().text = Name;
+        GameObject.Find("RunningMissionDescription").GetComponent<Text>().text = Description;
+        GameObject.Find("RunningMissionReward").GetComponent<Text>().text = Reward.ToString();
+        GameObject.Find("RunningMissionMaxAdventurers").GetComponent<Text>().text = MaxAdventurers.ToString();
+        GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = Adventurers.ToString();
+        GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = CurrentLocation.Value.Name;
+        GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = CurrentStage.Value.DisplayName;
+
+        switch (CurrentStage.Value.Name)
+        {
+            case StageNames.GoToDestination:
+                if (CurrentLocation != PathToMissionLocation.Last)
+                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.Distance(CurrentLocation.Value, CurrentLocation.Next.Value).ToString();
+                GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = CurrentStage.Value.DistanceTraveled.ToString();
+                break;
+            case StageNames.RetrieveTarget:
+                break;
+            case StageNames.ReturnToGuildHall:
+                if (CurrentLocation != PathToMissionLocation.First)
+                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.Distance(CurrentLocation.Value, CurrentLocation.Previous.Value).ToString();
+                GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = CurrentStage.Value.DistanceTraveled.ToString();
+                break;
+
+        }
+
+        
+    }
 
     private void adjustButtonColor()
     {
@@ -217,15 +252,15 @@ public class Mission : MonoBehaviour {
         Stages = new LinkedList<Stage>();
 
         // Travel Stages        
-        Stages.AddFirst(PMC.Stages[(int)PMC.StageIndexes.goToDestination]);
+        Stages.AddFirst(PMC.Stages[(int)StageNames.GoToDestination]);
         
         // Fullfil Mission Stages
              
-        Stages.AddLast(PMC.Stages[(int)PMC.StageIndexes.RetrieveTarget]);
+        Stages.AddLast(PMC.Stages[(int)StageNames.RetrieveTarget]);
 
         // Travel Back Stages
 
-        Stages.AddLast(PMC.Stages[(int)PMC.StageIndexes.ReturnToGuild]);
+        Stages.AddLast(PMC.Stages[(int)StageNames.ReturnToGuildHall]);
 
         CurrentStage = Stages.First;
 
@@ -256,22 +291,14 @@ public class Mission : MonoBehaviour {
     {
         static PMC()
         {
-            Stages = new Stage[(int)StageIndexes.MAX_STAGES];
+            Stages = new Stage[(int)StageNames.MAX_STAGES];
 
-            Stages[(int)StageIndexes.goToDestination] = new Stage("Go To Location", 3, goToLocationOfMission, -1);
-            Stages[(int)StageIndexes.RetrieveTarget] = new Stage("Search For Lost Item", 4, retrieveTarget, 10);
-            Stages[(int)StageIndexes.ReturnToGuild] = new Stage("Return To Guild Hall", 1, returnToGuildHall, -1);
+            Stages[(int)StageNames.GoToDestination] = new Stage(StageNames.GoToDestination, "Go to Destination", 3, goToLocationOfMission, -1);
+            Stages[(int)StageNames.RetrieveTarget] = new Stage(StageNames.RetrieveTarget, "Retrieve Target", 4, retrieveTarget, 10);
+            Stages[(int)StageNames.ReturnToGuildHall] = new Stage(StageNames.ReturnToGuildHall, "Return to Guild Hall", 1, returnToGuildHall, -1);
         }
 
         static public Stage[] Stages;
-
-        public enum StageIndexes
-        {
-            goToDestination,
-            RetrieveTarget,
-            ReturnToGuild,
-            MAX_STAGES
-        }
 
         static public List<Target> Items = new List<Target>() {
             new Target("Cat", Category.Animal),
@@ -344,6 +371,8 @@ public class Mission : MonoBehaviour {
                     if (travel.Distance > 0)
                     {
                         mission.CurrentStage.Value.DistanceTraveled += travel.Distance;
+                        mission.Adventurers.useGroupSkill(travel.SkillUsed);
+
                     }
                 }
             }
@@ -404,7 +433,8 @@ public class Mission : MonoBehaviour {
     /// </summary>
     public class Stage
     {
-        public string Name;
+        public StageNames Name;
+        public string DisplayName;
         public int Difficulty;
         public StageAction Action;
         public int Repeatability;
@@ -412,9 +442,10 @@ public class Mission : MonoBehaviour {
         public double DistanceTraveled;
         public FinishState FinishedWith = FinishState.None;
 
-        public Stage(string name, int difficulty, StageAction action, int repeatability)
+        public Stage(StageNames name, string display_name, int difficulty, StageAction action, int repeatability)
         {
             Name = name;
+            DisplayName = display_name;
             Difficulty = difficulty;
             Action = action;
             Repeatability = repeatability;
@@ -430,9 +461,15 @@ public class Mission : MonoBehaviour {
         }
 
         public delegate void StageAction(Mission mission);
+    }
 
+    public enum StageNames
+    {
+        GoToDestination,
+        ReturnToGuildHall,
+        RetrieveTarget,
 
-
+        MAX_STAGES
     }
 
     public enum MissionGoal
