@@ -56,7 +56,7 @@ public class Adventurer : MonoBehaviour {
         Skills = new List<AdventurerSkills.Skill>(AdventurerSkills.AllSkills);
 
         foreach (AdventurerSkills.Skill skill in Skills)
-            skill.Level += UnityEngine.Random.Range(1, 10);
+            skill.addLevels(UnityEngine.Random.Range(1, 10));
 
         Location = World.GuildHall;
         Location.Adventurers.Add(this);
