@@ -439,49 +439,7 @@ public class Mission : MonoBehaviour {
         }
     }
 
-    /// <summary>
-    /// Each mission is compossed of various stages. To complete a mission each stage has to be completed successfully by the party.
-    /// </summary>
-    public class Stage
-    {
-        public StageNames Name;
-        public string DisplayName;
-        public int Difficulty;
-        public StageAction Action;
-        public int Repeatability;
-        public int Repeated = 0;
-        public double DistanceTraveled;
-        public FinishState FinishedWith = FinishState.None;
 
-        public Stage(StageNames name, string display_name, int difficulty, StageAction action, int repeatability)
-        {
-            Name = name;
-            DisplayName = display_name;
-            Difficulty = difficulty;
-            Action = action;
-            Repeatability = repeatability;
-        }
-
-        public enum FinishState
-        {
-            CriticalFailure,
-            Failure,
-            None,
-            Success,
-            CriticalSuccess
-        }
-
-        public delegate void StageAction(Mission mission);
-    }
-
-    public enum StageNames
-    {
-        GoToDestination,
-        ReturnToGuildHall,
-        RetrieveTarget,
-
-        MAX_STAGES
-    }
 
     public enum MissionGoal
     {
