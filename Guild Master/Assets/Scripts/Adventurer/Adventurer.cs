@@ -10,7 +10,7 @@ public class Adventurer : MonoBehaviour {
     public string Name;
     public int Level;
 
-    public List<AdventurerSkills.Skill> Skills;
+    public List<Skill> Skills;
 
     public Location Location;
 
@@ -55,9 +55,9 @@ public class Adventurer : MonoBehaviour {
         isSelected = false;
         isAvailable = true;
 
-        Skills = new List<AdventurerSkills.Skill>(AdventurerSkills.AllSkills);
+        Skills = new List<Skill>(AdventurerSkills.AllSkills);
 
-        foreach (AdventurerSkills.Skill skill in Skills)
+        foreach (Skill skill in Skills)
             skill.addLevels(UnityEngine.Random.Range(1, 10));
 
         Location = World.GuildHall;
@@ -83,7 +83,7 @@ public class Adventurer : MonoBehaviour {
         GameObject.Find("AdventurerLevel").GetComponent<Text>().text = Level.ToString();
 
         string skills = "";
-        foreach (AdventurerSkills.Skill s in Skills)
+        foreach (Skill s in Skills)
         {
             skills += s.Name + " " + s.Level + "|" + s.Experience + "|" + s.ExperienceForNextLevel + "|" + (int)s.CurrentUses + "/" + (int)s.MaxUses + "|" + (int)s.Distance + "\n";
         }

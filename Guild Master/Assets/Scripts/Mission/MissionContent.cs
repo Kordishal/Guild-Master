@@ -103,25 +103,25 @@ public class MissionContent
 
     static private void retrieveTarget(Mission mission)
     {
-        AdventurerSkills.SkillNames used_skill_name = AdventurerSkills.SkillNames.LAST_ENTRY;
+        SkillNames used_skill_name = SkillNames.LAST_ENTRY;
 
         switch (mission.Target.Category)
         {
             case Category.Animal:
-                used_skill_name = AdventurerSkills.SkillNames.Tracking;
+                used_skill_name = SkillNames.Tracking;
                 break;
             case Category.Item:
-                used_skill_name = AdventurerSkills.SkillNames.Searching;
+                used_skill_name = SkillNames.Searching;
                 break;
             case Category.Person:
-                used_skill_name = AdventurerSkills.SkillNames.Tracking;
+                used_skill_name = SkillNames.Tracking;
                 break;
             case Category.Plant:
-                used_skill_name = AdventurerSkills.SkillNames.Searching;
+                used_skill_name = SkillNames.Searching;
                 break;
         }
 
-        AdventurerSkills.Skill used_skill = mission.Adventurers.Members[0].Skills[(int)used_skill_name];
+        Skill used_skill = mission.Adventurers.Members[0].Skills[(int)used_skill_name];
 
         for (int i = 1; i < mission.Adventurers.Members.Count; i++)
             if (used_skill.Level < mission.Adventurers.Members[i].Skills[(int)used_skill_name].Level)

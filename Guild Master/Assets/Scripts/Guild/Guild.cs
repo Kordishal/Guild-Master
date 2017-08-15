@@ -31,8 +31,6 @@ public class Guild : MonoBehaviour {
 
     public List<GameObject> Adventurers;
 
-
-
     public List<GameObject> Missions;
 
     public Text MissionDescription;

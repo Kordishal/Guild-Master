@@ -265,7 +265,7 @@ public class Mission : MonoBehaviour {
 
         CurrentStage = Stages.First;
 
-        PathToMissionLocation = new LinkedList<Location>(World.findShortestPath(guild.GuildHall, Destination));
+        PathToMissionLocation = new LinkedList<Location>(World.findShortestPath(World.GuildHall, Destination));
         CurrentLocation = PathToMissionLocation.First;
 
         //var temp = CurrentLocation;
