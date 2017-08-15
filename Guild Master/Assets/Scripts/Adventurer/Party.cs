@@ -14,10 +14,10 @@ public class Party {
 
         foreach (Adventurer a in Members)
         {
-            if (a.Skills[(int)AdventurerSkills.SkillNames.Walking].CurrentUses > 0)
+            if (a.Skills[(int)SkillNames.Walking].CurrentUses > 0)
             {
-                if (a.Skills[(int)AdventurerSkills.SkillNames.Walking].Distance < max_distance_walking)
-                    max_distance_walking = a.Skills[(int)AdventurerSkills.SkillNames.Walking].Distance;
+                if (a.Skills[(int)SkillNames.Walking].Distance < max_distance_walking)
+                    max_distance_walking = a.Skills[(int)SkillNames.Walking].Distance;
             }
             else
                 all_adventurers_can_still_walk = false;
@@ -27,15 +27,15 @@ public class Party {
 
         if (all_adventurers_can_still_walk)
         {
-            return new Travel(AdventurerSkills.SkillNames.Walking, max_distance_walking);
+            return new Travel(SkillNames.Walking, max_distance_walking);
         }
         else
         {
-            return new Travel(AdventurerSkills.SkillNames.Walking, 0);
+            return new Travel(SkillNames.Walking, 0);
         }
     }
 
-    public void useGroupSkill(AdventurerSkills.SkillNames skill)
+    public void useGroupSkill(SkillNames skill)
     {
         foreach (Adventurer a in Members)
             a.Skills[(int)skill].CurrentUses += 1;
@@ -44,10 +44,10 @@ public class Party {
 
     public struct Travel
     {
-        public AdventurerSkills.SkillNames SkillUsed;
+        public SkillNames SkillUsed;
         public double Distance;
 
-        public Travel(AdventurerSkills.SkillNames skillUsed, double distance)
+        public Travel(SkillNames skillUsed, double distance)
         {
             SkillUsed = skillUsed;
             Distance = distance;
