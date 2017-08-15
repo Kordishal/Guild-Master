@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class Guild : MonoBehaviour {
 
-    public Player GuildMaster;
+    public int CurrentWealth;
+    public Text StatusBarLabelWealth;
 
     public Calendar Calendar;
     public GameObject EventDialogBox;
@@ -185,8 +186,8 @@ public class Guild : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-	}
+        StatusBarLabelWealth.text = CurrentWealth.ToString();
+    }
 
     public void fireDailyEvent(object sender, EventArgs e)
     {
