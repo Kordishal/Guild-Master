@@ -6,39 +6,33 @@ using UnityEngine.UI;
 
 public class Calendar : MonoBehaviour {
 
-    private float total_real_time_passed;
-    private float one_second;
+    private static float total_real_time_passed;
+    private static float time_passed;
 
-    private int hours;
-    private int total_hours;
+    private static int hours;
+    private static int total_hours;
 
-    private int days;
-    private int total_days;
+    private static int days;
+    private static int total_days;
 
-    private int year;
-    private int total_years;
+    private static int year;
+    private static int total_years;
 
-    private Dictionary<string, List<int>> parts_of_day;
-    private int nextDailyEvent;
+    private static Dictionary<string, List<int>> parts_of_day;
+    private static string current_part_of_day;
 
-    private int current_weekday;
-    private string[] weekdays = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+    private static int next_daily_event;
 
-    private int current_month;
-    private string[] months = { "January", "February", "March", "April", "Mai", "June", "July", "August", "September", "October", "November", "December" };
+    private static int current_weekday;
+    private static string[] weekdays = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
-    private int current_season;
-    private string[] seasons = { "Winter", "Spring", "Summer", "Fall" };
+    private static int current_month;
+    private static string[] months = { "January", "February", "March", "April", "Mai", "June", "July", "August", "September", "October", "November", "December" };
 
+    private static int current_season;
+    private static string[] seasons = { "Winter", "Spring", "Summer", "Fall" };
 
-    public Text CurrentDate;
-
-    private bool isPaused = false;
-    public void onClick_Pause()
-    {
-        if (isPaused) isPaused = false;
-        else isPaused = true;
-    }
+    public static bool GamePaused;
 
     public int getTick()
     {
@@ -61,7 +55,7 @@ public class Calendar : MonoBehaviour {
         total_years = 0;
 
         total_real_time_passed = 0;
-        one_second = 0;
+        time_passed = 0;
 
         parts_of_day = new Dictionary<string, List<int>>();
         parts_of_day.Add("Morning", new List<int> { 6, 7, 8, 9, 10, 11 });
@@ -70,33 +64,37 @@ public class Calendar : MonoBehaviour {
         parts_of_day.Add("Evening", new List<int> { 19, 20, 21, 22, 23 });
         parts_of_day.Add("Night", new List<int> { 24, 1, 2, 3, 4, 5 });
 
-        nextDailyEvent = 12;
+        // the first daily event is always at 12 o'clock.
+        next_daily_event = 12;
 
-        updateSeason();
-        //updatePartsOfDay();
-        updateCurrentDate();
+        determine_season();
+
+        GamePaused = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        // Store the total time played...
         total_real_time_passed += Time.deltaTime;
-        if (isPaused)
+
+        if (GamePaused)
             return;
 
-        one_second += Time.deltaTime;
+        time_passed += Time.deltaTime;
 
-        if (one_second > 0.5)
+        if (time_passed > 0.5)
         {
             hours += 1;
             total_hours += 1;
-            newHour(new EventArgs());
+            determine_part_of_day();
+            fire_advance_hour_trigger(new EventArgs());
 
-            if (nextDailyEvent == hours)
-                onDailyEventTrigger(new EventArgs());
+            if (next_daily_event == hours)
+                fire_daily_event_trigger(new EventArgs());
 
             if (hours == 25)
             {
-                determineNextDailyEventTrigger();
+                set_next_daily_event_hour();
                 hours = 1;
 
                 days += 1;
@@ -121,19 +119,23 @@ public class Calendar : MonoBehaviour {
                 }
             }
 
-            one_second = 0;
-
-            //updatePartsOfDay();
-            updateSeason();
-            updateCurrentDate();
+            time_passed = 0;
+            determine_season();
         }
 	}
 
-    private void updateCurrentDate()
+    /// <summary>
+    /// Returns the current date & time in human readeable form.
+    /// </summary>
+    public static string getDateTime()
     {
-        CurrentDate.text = hours + "h - " + weekdays[current_weekday] + ", " + days + ". " + months[current_month] + " " + year + "; " + seasons[current_season];
+        return hours + "h - " + weekdays[current_weekday] + ", " + days + ". " + months[current_month] + " " + year + "; " + seasons[current_season];
     }
-    private void updateSeason()
+
+    /// <summary>
+    /// What season it currently is. Depends on the month.
+    /// </summary>
+    private void determine_season()
     {
         switch (current_month)
         {
@@ -161,50 +163,52 @@ public class Calendar : MonoBehaviour {
         }
     }
 
-    /*
-    private void updatePartsOfDay()
+    private void determine_part_of_day()
     {
         if (parts_of_day["Morning"].Contains(hours))
-            part_of_day = "Moring";
+            current_part_of_day = "Moring";
         else if (parts_of_day["Lunch"].Contains(hours))
-            part_of_day = "Lunch";
+            current_part_of_day = "Lunch";
         else if (parts_of_day["Afternoon"].Contains(hours))
-            part_of_day = "Afternoon";
+            current_part_of_day = "Afternoon";
         else if (parts_of_day["Evening"].Contains(hours))
-            part_of_day = "Evening";
+            current_part_of_day = "Evening";
         else if (parts_of_day["Night"].Contains(hours))
-            part_of_day = "Night";
+            current_part_of_day = "Night";
     }
-    */
 
 
-    private void determineNextDailyEventTrigger()
+
+    /// <summary>
+    /// Sets at random when the next daily event will be triggered.
+    /// </summary>
+    private void set_next_daily_event_hour()
     {
         int chance = UnityEngine.Random.Range(0, 4);
 
         switch (chance)
         {
             case 0:
-                nextDailyEvent = parts_of_day["Morning"][UnityEngine.Random.Range(0, parts_of_day["Morning"].Count)];
+                next_daily_event = parts_of_day["Morning"][UnityEngine.Random.Range(0, parts_of_day["Morning"].Count)];
                 break;
             case 1:
-                nextDailyEvent = parts_of_day["Lunch"][UnityEngine.Random.Range(0, parts_of_day["Lunch"].Count)];
+                next_daily_event = parts_of_day["Lunch"][UnityEngine.Random.Range(0, parts_of_day["Lunch"].Count)];
                 break;
             case 2:
-                nextDailyEvent = parts_of_day["Afternoon"][UnityEngine.Random.Range(0, parts_of_day["Afternoon"].Count)];
+                next_daily_event = parts_of_day["Afternoon"][UnityEngine.Random.Range(0, parts_of_day["Afternoon"].Count)];
                 break;
             case 3:
-                nextDailyEvent = parts_of_day["Evening"][UnityEngine.Random.Range(0, parts_of_day["Evening"].Count)];
+                next_daily_event = parts_of_day["Evening"][UnityEngine.Random.Range(0, parts_of_day["Evening"].Count)];
                 break;
             case 4:
-                nextDailyEvent = parts_of_day["Night"][UnityEngine.Random.Range(0, parts_of_day["Night"].Count)];
+                next_daily_event = parts_of_day["Night"][UnityEngine.Random.Range(0, parts_of_day["Night"].Count)];
                 break;
         }
     }
 
 
     public event EventHandler<EventArgs> dailyEventTrigger;
-    protected virtual void onDailyEventTrigger(EventArgs e)
+    protected virtual void fire_daily_event_trigger(EventArgs e)
     {
         EventHandler<EventArgs> handler = dailyEventTrigger;
         if (handler != null)
@@ -213,7 +217,7 @@ public class Calendar : MonoBehaviour {
     }
 
     public event EventHandler<EventArgs> hourlyTrigger;
-    protected virtual void newHour(EventArgs e)
+    protected virtual void fire_advance_hour_trigger(EventArgs e)
     {
         EventHandler<EventArgs> handler = hourlyTrigger;
         if (handler != null)

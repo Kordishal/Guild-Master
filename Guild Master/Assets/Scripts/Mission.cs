@@ -101,7 +101,7 @@ public class Mission : MonoBehaviour {
                 Reward = Reward - (full_reward * a.Cost);
                 a.isAvailable = true;
 
-                guild.CurrentWealth += (int)Reward;
+                Guild.CurrentWealth += (int)Reward;
             }
         }
 
