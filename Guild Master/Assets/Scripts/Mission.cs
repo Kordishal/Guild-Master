@@ -228,9 +228,11 @@ public class Mission : MonoBehaviour {
         {
             if (!isSelected)
             {
-                foreach (GameObject o in guild.Missions)
-                    if (o.GetComponent<Mission>().isSelected)
-                        o.GetComponent<Mission>().isSelected = false;
+                if (guild.SelectedMission != null)
+                {
+                    var temp = guild.SelectedMission.GetComponent<Mission>();
+                    temp.isSelected = false;
+                }
 
                 isSelected = true;
                 guild.SelectedMission = gameObject;
@@ -354,29 +356,39 @@ public class Mission : MonoBehaviour {
 
         static private void goToLocationOfMission(Mission mission)
         {
-            if (mission.CurrentLocation.Value == mission.Destination)
-                mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
-            else
+            int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Next.Value);
+                
+            var travel = mission.Adventurers.getFastestTravel();
+
+            if (travel.Distance > 0)
             {
-                int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Next.Value);
+                mission.CurrentStage.Value.DistanceTraveled += travel.Distance;
+                mission.Adventurers.useGroupSkill(travel.SkillUsed);
 
-                if (mission.CurrentStage.Value.DistanceTraveled >= distance_required)
-                {
-                    mission.CurrentStage.Value.DistanceTraveled = 0;
-                    mission.CurrentLocation = mission.CurrentLocation.Next;
-                }
-                else
-                {
-                    var travel = mission.Adventurers.getFastestTravel();
+                double carry_over = 0;
 
-                    if (travel.Distance > 0)
+                do
+                {
+                    if (mission.CurrentStage.Value.DistanceTraveled >= distance_required)
                     {
-                        mission.CurrentStage.Value.DistanceTraveled += travel.Distance;
-                        mission.Adventurers.useGroupSkill(travel.SkillUsed);
+                        carry_over = mission.CurrentStage.Value.DistanceTraveled - distance_required;
 
+                        mission.CurrentStage.Value.DistanceTraveled = 0;
+                        mission.CurrentLocation = mission.CurrentLocation.Next;
+
+                        mission.CurrentStage.Value.DistanceTraveled += carry_over;
+
+                        if (mission.CurrentLocation.Value == mission.Destination)
+                        {
+                            mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
+                            return;
+                        }
                     }
-                }
-            }
+                    else
+                        carry_over = 0;
+
+                } while (carry_over > 0);           
+            }            
         }
 
         static private void retrieveTarget(Mission mission)

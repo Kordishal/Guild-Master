@@ -8,23 +8,13 @@ public class Player : MonoBehaviour
 
     public string Name;
     public int Currency;
-
-
-    public InputField PlayerInformation;
     public Text CurrencyField;
-
-    private void changeName(string name)
-    {
-        Name = name;
-        PlayerInformation.readOnly = true;
-    }
 
     // Use this for initialization
     void Start()
     {
-        Name = "PlaceHolder";
+        Name = "SoulLink";
         Currency = 1000;
-        PlayerInformation.onEndEdit.AddListener((value) => changeName(value));
     }
 
     // Update is called once per frame
