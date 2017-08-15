@@ -193,14 +193,14 @@ public class Mission : MonoBehaviour {
         {
             case StageNames.GoToDestination:
                 if (CurrentLocation != PathToMissionLocation.Last)
-                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.Distance(CurrentLocation.Value, CurrentLocation.Next.Value).ToString();
+                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(CurrentLocation.Value, CurrentLocation.Next.Value).ToString();
                 GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = CurrentStage.Value.DistanceTraveled.ToString();
                 break;
             case StageNames.RetrieveTarget:
                 break;
             case StageNames.ReturnToGuildHall:
                 if (CurrentLocation != PathToMissionLocation.First)
-                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.Distance(CurrentLocation.Value, CurrentLocation.Previous.Value).ToString();
+                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(CurrentLocation.Value, CurrentLocation.Previous.Value).ToString();
                 GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = CurrentStage.Value.DistanceTraveled.ToString();
                 break;
 
@@ -333,7 +333,7 @@ public class Mission : MonoBehaviour {
                 mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
             else
             {
-                int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Previous.Value);
+                int distance_required = World.getDistance(mission.CurrentLocation.Value, mission.CurrentLocation.Previous.Value);
 
                 if (mission.CurrentStage.Value.DistanceTraveled >= distance_required)
                 {
@@ -354,7 +354,7 @@ public class Mission : MonoBehaviour {
 
         static private void goToLocationOfMission(Mission mission)
         {
-            int distance_required = World.Distance(mission.CurrentLocation.Value, mission.CurrentLocation.Next.Value);
+            int distance_required = World.getDistance(mission.CurrentLocation.Value, mission.CurrentLocation.Next.Value);
                 
             var travel = mission.Adventurers.getFastestTravel();
 

@@ -3,18 +3,45 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// The physical world in which the guild is situated. The locations within this world are 
+/// stored in a graph. This graph is made up as a dictionary within a dictionary. For each location 
+/// it returns a dictionary of its neighbours with a distance.
+/// </summary>
 public class World : MonoBehaviour {
 
-    static public Location GuildHall;
-    static public List<Location> Places;
 
-    static public Dictionary<Location, Dictionary<Location, int>> WorldGraph;
+    /// <summary>
+    /// The guild hall is the home of the guild. It works as a base of operation. All adventurers start from here to go to missions.
+    /// TODO: Expand the function of the guild hall.
+    /// </summary>
+    public static Location GuildHall;
 
+    /// <summary>
+    /// A list of all the locations in the world excluding the guild hall. This list is used to find random locations for mission.
+    /// TODO: Further refine this list so that the type of location can be chosen more carefully.
+    /// </summary>
+    public static List<Location> Places;
+
+    /// <summary>
+    /// The navigation mesh for the adventurers to find their way around the world.
+    /// </summary>
+    private static Dictionary<Location, Dictionary<Location, int>> WorldGraph;
+
+
+    /// <summary>
+    /// When adding a new location always use this function to ensure that everything is added properly. 
+    /// Still need to add all locations seperatly with all neighbours.
+    /// </summary>
     public void addLocation(Location location, Dictionary<Location, int> neighbour_locations)
     {
         WorldGraph[location] = neighbour_locations;
     }
 
+    /// <summary>
+    /// Uses dijkstras algorithm to find the shortest path from start to destination. Uses the distances as weights.
+    /// Returns the shortest path from start to destination including the start.
+    /// </summary>
     static public List<Location> findShortestPath(Location start, Location destination)
     {
         var previous = new Dictionary<Location, Location>();
@@ -71,16 +98,24 @@ public class World : MonoBehaviour {
         // Reverse the path as it goes from last to first and insert the beginning of 
         // the path as it is not included by the algorithm but needed for the game
         path.Reverse();
-        path.Insert(0, GuildHall);
+        path.Insert(0, start);
         return path;
     }
 
-    static public int Distance(Location start, Location destination)
+    
+    /// <summary>
+    /// Simple lookup inside the graph to get a distance.
+    /// </summary>
+    public static int getDistance(Location start, Location destination)
     {
         return WorldGraph[start][destination];
     }
 
-    static public int totalDistanceOfPath(LinkedList<Location> path)
+
+    /// <summary>
+    /// Calculates the total distance of a path.
+    /// </summary>
+    public static int totalDistanceOfPath(LinkedList<Location> path)
     {
         int result = 0;
         var current = path.First;
@@ -94,8 +129,11 @@ public class World : MonoBehaviour {
         return result;
     }
 
-	// Use this for initialization
-	void Start () {
+
+	/// <summary>
+    /// Initializes the world and all the locations inside.
+    /// </summary>
+    void Start () {
         WorldGraph = new Dictionary<Location, Dictionary<Location, int>>();
         Places = new List<Location>();
 
