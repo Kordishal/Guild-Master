@@ -15,8 +15,10 @@ public class Adventurer : MonoBehaviour {
     public Location Location;
 
     public double Cost;
+
     public bool isSelected;
     public bool isAvailable;
+    public bool isDisplayed;
 
     public Text NameLabel;
     public Text LevelLabel;
@@ -60,12 +62,33 @@ public class Adventurer : MonoBehaviour {
 
         Location = World.GuildHall;
         Location.Adventurers.Add(this);
+
+        if (ID == 1)
+        {
+            isDisplayed = true;
+            guild.CurrentlyDisplayedAdventurer = gameObject;
+            printAdventurer();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         adjustButtonColor();
+    }
+
+    public void printAdventurer()
+    {
+        GameObject.Find("AdventurerName").GetComponent<Text>().text = Name;
+        GameObject.Find("AdventurerLevel").GetComponent<Text>().text = Level.ToString();
+
+        string skills = "";
+        foreach (AdventurerSkills.Skill s in Skills)
+        {
+            skills += s.Name + " " + s.Level + "|" + s.Experience + "|" + s.ExperienceForNextLevel + "|" + (int)s.CurrentUses + "/" + (int)s.MaxUses + "|" + (int)s.Distance + "\n";
+        }
+        GameObject t = GameObject.Find("AdventurerSkills");
+        t.GetComponent<Text>().text = skills;
     }
 
     public void onClicked()

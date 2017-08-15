@@ -9,7 +9,6 @@ public class Party {
     public Travel getFastestTravel()
     {
         // get all the movement stuff and figure out which one goes the fastest and the furthest. 
-        Debug.Log("TRAVEL DISTANCE CALC");
         double max_distance_walking = int.MaxValue;
         bool all_adventurers_can_still_walk = true;
 

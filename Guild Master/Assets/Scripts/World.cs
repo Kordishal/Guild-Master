@@ -17,8 +17,6 @@ public class World : MonoBehaviour {
 
     static public List<Location> findShortestPath(Location start, Location destination)
     {
-        Debug.Log("Find path from " + start.Name + " to " + destination.Name);
-
         var previous = new Dictionary<Location, Location>();
         var distances = new Dictionary<Location, int>();
         var nodes = new List<Location>();
@@ -208,9 +206,6 @@ public class World : MonoBehaviour {
         // Easter Forest
         addLocation(eastern_forest, new Dictionary<Location, int>() { { home_town, 550 }, { mountain_range, 250 }, { forest, 790 } });
         addLocation(ancient_ruin, new Dictionary<Location, int>() { { eastern_forest, 100 } });
-
-        foreach (var n in WorldGraph)
-            Debug.Log("World Graph: " + n.ToString());
     }
 	
 	// Update is called once per frame

@@ -11,7 +11,28 @@ public class Guild : MonoBehaviour {
     public Calendar Calendar;
     public GameObject EventDialogBox;
 
+    public GameObject AdventurerDisplayBox;
+    public GameObject CurrentlyDisplayedAdventurer;
+
+    public void nextAdventurer_onClick()
+    {
+        if (Adventurers.Count != 0)
+        {
+            var i = Adventurers.FindIndex(x => x.GetComponent<Adventurer>().isDisplayed);
+            CurrentlyDisplayedAdventurer.GetComponent<Adventurer>().isDisplayed = false;
+            if (i == Adventurers.Count - 1)            
+                CurrentlyDisplayedAdventurer = Adventurers[0];          
+            else 
+                CurrentlyDisplayedAdventurer = Adventurers[i + 1];         
+            CurrentlyDisplayedAdventurer.GetComponent<Adventurer>().isDisplayed = true;
+            CurrentlyDisplayedAdventurer.GetComponent<Adventurer>().printAdventurer();
+        }
+    }
+
     public List<GameObject> Adventurers;
+
+
+
     public List<GameObject> Missions;
 
     public Text MissionDescription;
@@ -52,8 +73,13 @@ public class Guild : MonoBehaviour {
     public Text ErrorMessages;
 
     private bool is_warned;
-    private void onStartMissionClick()
+    public void onStartMissionClick()
     {
+        if (SelectedMission == null)
+        {
+            ErrorMessages.text = "No mission selected.";
+            return;
+        }
         if (SelectedAdventurers.Count == 0)
         {
             ErrorMessages.text = "You need to select at least one adventurer to send on a mission.";
@@ -135,12 +161,7 @@ public class Guild : MonoBehaviour {
 	void Start () {
         UnityEngine.Random.InitState(10100);
 
-        StartMission.onClick.AddListener(onStartMissionClick);
-
-        StartMission.enabled = false;
         SelectedMission = null;
-        SelectedAdventurers = null;
-
         SelectedAdventurers = new List<GameObject>();
         RunningMissions = new LinkedList<Mission>();
 
@@ -157,15 +178,13 @@ public class Guild : MonoBehaviour {
             Button adventurer = Instantiate(AdventureButtonPrefab) as Button;
             Button mission = Instantiate(MissionButtonPrefab) as Button;
         }
+        defaultValuesRunningMissionDisplay();
+
+
     }
 	
 	// Update is called once per frame
 	void Update () {
-        if (SelectedMission != null & SelectedAdventurers.Count > 0)
-            StartMission.enabled = true;
-
-        if (RunningMissions.Count == 0)
-            defaultValuesRunningMissionDisplay();
 
 	}
 

@@ -36,8 +36,6 @@ public class Mission : MonoBehaviour {
     public bool isSuccess;
     public bool isFinished;
 
-
-
     public void startMission(List<Adventurer> adventurers)
     {
         isRunning = true;
@@ -270,15 +268,15 @@ public class Mission : MonoBehaviour {
         PathToMissionLocation = new LinkedList<Location>(World.findShortestPath(guild.GuildHall, Destination));
         CurrentLocation = PathToMissionLocation.First;
 
-        var temp = CurrentLocation;
-        string debug_string = "Path (" + Name + "): ";
-        while (temp != PathToMissionLocation.Last)
-        {
-            debug_string += temp.Value.Name + " -> ";
-            temp = temp.Next;
-        }
-        debug_string += temp.Value.Name + "!";
-        Debug.Log(debug_string);
+        //var temp = CurrentLocation;
+        //string debug_string = "Path (" + Name + "): ";
+        //while (temp != PathToMissionLocation.Last)
+        //{
+        //    debug_string += temp.Value.Name + " -> ";
+        //    temp = temp.Next;
+        //}
+        //debug_string += temp.Value.Name + "!";
+        //Debug.Log(debug_string);
 
 
         Name = "Mission: Find the " + Target.Name;

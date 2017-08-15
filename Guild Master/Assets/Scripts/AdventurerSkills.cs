@@ -26,9 +26,18 @@ public class AdventurerSkills : MonoBehaviour {
 
         // Social Skills
 
-        AllSkills[(int)SkillNames.Investigate] = new Skill("Tracking", SkillType.Social, 0, 0, 1, 10, 0, 1);
+        AllSkills[(int)SkillNames.Investigate] = new Skill("Investigate", SkillType.Social, 0, 0, 1, 10, 0, 1);
 
         // Combat Skills
+
+
+        RectTransform rect_cont = GameObject.Find("AdventurerSkillsContent").GetComponent<RectTransform>();
+        rect_cont.position = new Vector3(rect_cont.position.x, rect_cont.position.y, 0);
+        rect_cont.offsetMin = new Vector2(rect_cont.offsetMin.x, rect_cont.offsetMin.y - 16 * (AllSkills.Length));
+
+        RectTransform rect = GameObject.Find("AdventurerSkills").GetComponent<RectTransform>();
+        rect.position = new Vector3(rect.position.x, rect.position.y, 0);
+        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 16 * (AllSkills.Length));
     }
 	
 	// Update is called once per frame
