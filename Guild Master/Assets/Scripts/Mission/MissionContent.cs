@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class MissionContent
 {
@@ -41,7 +42,7 @@ public class MissionContent
 
     static private void returnToGuildHall(Mission mission)
     {
-        if (mission.CurrentLocation.Value == mission.guild.GuildHall)
+        if (mission.CurrentLocation.Value == World.GuildHall)
             mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
         else
         {

@@ -27,7 +27,6 @@ public class StatusBarHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         CurrentDate.text = Calendar.getDateTime();
-
         CurrentWealth.text = Guild.CurrentWealth.ToString();
 	}
 }

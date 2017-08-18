@@ -11,29 +11,47 @@ public class Guild : MonoBehaviour {
     public Calendar Calendar;
     public GameObject EventDialogBox;
 
-    public GameObject AdventurerDisplayBox;
-    public GameObject CurrentlyDisplayedAdventurer;
-
-    public void nextAdventurer_onClick()
+    private List<GameObject> adventurers;
+    public List<GameObject> Adventurers { get { return adventurers; } }
+    public void addAdventurer(GameObject adventurer)
     {
-        if (Adventurers.Count != 0)
-        {
-            var i = Adventurers.FindIndex(x => x.GetComponent<Adventurer>().isDisplayed);
-            CurrentlyDisplayedAdventurer.GetComponent<Adventurer>().isDisplayed = false;
-            if (i == Adventurers.Count - 1)            
-                CurrentlyDisplayedAdventurer = Adventurers[0];          
-            else 
-                CurrentlyDisplayedAdventurer = Adventurers[i + 1];         
-            CurrentlyDisplayedAdventurer.GetComponent<Adventurer>().isDisplayed = true;
-            CurrentlyDisplayedAdventurer.GetComponent<Adventurer>().printAdventurer();
-        }
+        adventurers.Add(adventurer);
+        fire_change_adventurer_amount(new EventArgs());
+    }
+    public void addAdventurers(List<GameObject> adventurers_list)
+    {
+        adventurers = adventurers_list;
+        fire_change_adventurer_amount(new EventArgs());
+    }
+    public void removeAdventurer(GameObject adventurer)
+    {
+        adventurers.Remove(adventurer);
+        fire_change_adventurer_amount(new EventArgs());
     }
 
-    public List<GameObject> Adventurers;
 
-    public List<GameObject> Missions;
+    private List<GameObject> missions;
+    public List<GameObject> Missions
+    {
+        get { return missions; }
+    }
+    public void addMission(GameObject mission)
+    {
+        missions.Add(mission);
+        fire_change_mission_amount(new EventArgs());
+    }
+    public void addMissions(List<GameObject> missions_list)
+    {
+        missions = missions_list;
+        fire_change_mission_amount(new EventArgs());
+    }
+    public void removeMission(GameObject mission)
+    {
+        missions.Remove(mission);
+        fire_change_mission_amount(new EventArgs());
+    }
 
-    public Text MissionDescription;
+
     public GameObject SelectedMission;
     public Mission getSelectedMission
     {
@@ -54,17 +72,7 @@ public class Guild : MonoBehaviour {
         }
     }
 
-    public GameObject CurrentRunningMissionDisplayBox;
-    public LinkedListNode<Mission> CurrentDisplayedMission;
     public LinkedList<Mission> RunningMissions;
-
-    public Location GuildHall;
-
-    public ScrollRect AdventurerView;
-    public ScrollRect MissionView;
-
-    public Button AdventureButtonPrefab;
-    public Button MissionButtonPrefab;
 
     public Button StartMission;
 
@@ -99,6 +107,9 @@ public class Guild : MonoBehaviour {
             {
                 foreach (GameObject o in Missions)
                 {
+                    if (o == null)
+                        continue;
+
                     if (o.GetComponent<Mission>().isAvailable)
                     {
                         o.GetComponent<Mission>().onClicked();
@@ -115,12 +126,6 @@ public class Guild : MonoBehaviour {
             }
 
             RunningMissions.AddLast(m);
-
-            if (RunningMissions.Count == 1)
-            {
-                CurrentDisplayedMission = RunningMissions.First;
-                m.isDisplayed = true;
-            }
                 
 
             m.startMission(advs);
@@ -139,22 +144,6 @@ public class Guild : MonoBehaviour {
 
     }
 
-    public void onNextMissionClick()
-    {
-        if (RunningMissions.Count <= 1)
-            return;
-
-        CurrentDisplayedMission.Value.isDisplayed = false;
-
-        if (CurrentDisplayedMission == RunningMissions.Last)
-            CurrentDisplayedMission = RunningMissions.First;
-        else
-            CurrentDisplayedMission = CurrentDisplayedMission.Next;
-
-        CurrentDisplayedMission.Value.isDisplayed = true;
-    }
-
-
 	// Use this for initialization
 	void Start () {
         UnityEngine.Random.InitState(10100);
@@ -166,20 +155,7 @@ public class Guild : MonoBehaviour {
         ErrorMessages.text = "Everything is Okay";
 
         Calendar.dailyEventTrigger += fireDailyEvent;
-
-        GuildHall = World.GuildHall;
-
-        // Create a bunch of missions and adventurers to begin with.
-
-        for (int i = 0; i < 5; i++)
-        {
-            Button adventurer = Instantiate(AdventureButtonPrefab) as Button;
-            Button mission = Instantiate(MissionButtonPrefab) as Button;
-        }
-        defaultValuesRunningMissionDisplay();
-
         CurrentWealth = 1000;
-
     }
 	
 	// Update is called once per frame
@@ -192,17 +168,23 @@ public class Guild : MonoBehaviour {
         GameObject game_event = Instantiate(EventDialogBox);
     }
 
-    private void defaultValuesRunningMissionDisplay()
+
+    public event EventHandler<EventArgs> change_adventurer_amount;
+    protected virtual void fire_change_adventurer_amount(EventArgs e)
     {
-        GameObject.Find("RunningMissionTitle").GetComponent<Text>().text = "";
-        GameObject.Find("RunningMissionDescription").GetComponent<Text>().text = "No Missions Running";
-        GameObject.Find("RunningMissionReward").GetComponent<Text>().text = "0";
-        GameObject.Find("RunningMissionMaxAdventurers").GetComponent<Text>().text = "0";
-        GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = "None";
-        GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = "-------";
-        GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = "----";
-        GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = "0";
-        GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = "0";
+        EventHandler<EventArgs> handler = change_adventurer_amount;
+        if (handler != null)
+            handler(this, e);
+
+    }
+
+    public event EventHandler<EventArgs> change_mission_amount;
+    protected virtual void fire_change_mission_amount(EventArgs e)
+    {
+        EventHandler<EventArgs> handler = change_mission_amount;
+        if (handler != null)
+            handler(this, e);
+
     }
 }
 

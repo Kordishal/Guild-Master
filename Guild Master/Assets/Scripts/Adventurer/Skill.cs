@@ -20,17 +20,30 @@ public class Skill
 
     public double LevelFactor;
 
-    public Skill(string name, SkillType type, int level, int experience, int experienceForNextLevel, double distance, double max_uses, double levelMultiplier)
+    public Skill(string name, SkillType type, int experienceForNextLevel, double distance, double max_uses, double levelMultiplier)
     {
         Name = name;
         Type = type;
-        Level = level;
-        Experience = experience;
+        Level = 0;
+        Experience = 0;
         ExperienceForNextLevel = experienceForNextLevel;
         Distance = distance;
         MaxUses = max_uses;
         CurrentUses = MaxUses;
         LevelFactor = levelMultiplier;
+    }
+
+    public Skill(Skill s)
+    {
+        Name = s.Name;
+        Type = s.Type;
+        Level = 0;
+        Experience = 0;
+        ExperienceForNextLevel = s.ExperienceForNextLevel;
+        Distance = s.Distance;
+        MaxUses = s.MaxUses;
+        CurrentUses = MaxUses;
+        LevelFactor = s.LevelFactor;
     }
 
     public int throwDiceVs(int Difficulty)

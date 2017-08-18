@@ -8,10 +8,6 @@ using UnityEngine.UI;
 public class GameEventDatabase : MonoBehaviour {
 
     static public List<GameEventImplementation> GAME_EVENTS;
-
-    public Button AdventureButtonPrefab;
-    public Button MissionButtonPrefab;
-
     public GameObject EventDialogBoxPrefab;
 
     public Guild Guild;
@@ -62,11 +58,11 @@ public class GameEventDatabase : MonoBehaviour {
 
     public void addNewMission()
     {
-        Button mission = Instantiate(MissionButtonPrefab) as Button;
+        Guild.addMission(GetComponent<GenerateMissions>().generateMission());
     }
     public void addNewAdventurer()
     {
-        Button adventurer = Instantiate(AdventureButtonPrefab) as Button;
+        Guild.addAdventurer(GetComponent<GenerateAdventurers>().generateAdventurer());
     }
 
     public enum EventType

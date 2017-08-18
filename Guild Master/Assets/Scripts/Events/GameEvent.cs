@@ -5,13 +5,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class GameEvent : MonoBehaviour {
-
-    private static int event_count;
-    private int identifier;
-
-    private Guild guild;
-
+public class GameEvent : MonoBehaviour
+{ 
     public GameEventDatabase.EventFrequencyType Frequency;
     public GameEventDatabase.EventType Type;
     public int Weight;
@@ -25,11 +20,6 @@ public class GameEvent : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        identifier = event_count;
-        event_count += 1;
-
-        guild = GameObject.Find("Guild").GetComponent<Guild>();
-
         // Put to dialog box into the center of the screen.
         transform.SetParent(GameObject.Find("OverlayCanvas").transform);
         RectTransform rect_dialog = GetComponent<RectTransform>();

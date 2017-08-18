@@ -11,7 +11,7 @@ public class Location : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        Adventurers = new List<Adventurer>();
+        
 	}
 	
 	// Update is called once per frame
