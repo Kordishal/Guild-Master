@@ -26,6 +26,15 @@ public class Stage
         Repeatability = repeatability;
     }
 
+    public Stage(Stage stage)
+    {
+        Name = stage.Name;
+        DisplayName = stage.DisplayName;
+        Difficulty = stage.Difficulty;
+        Action = stage.Action;
+        Repeatability = stage.Repeatability;
+    }
+
     public enum FinishState
     {
         CriticalFailure,

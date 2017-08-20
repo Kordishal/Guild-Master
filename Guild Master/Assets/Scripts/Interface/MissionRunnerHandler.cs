@@ -27,6 +27,9 @@ public class MissionRunnerHandler : MonoBehaviour {
         //TODO: Change it so this only runs if there is a change to the adventurer;
         if (current_adventurer_inspected != null)
             display_inspected_adventurer();
+
+        if (current_mission_inspected != null)
+            display_inspected_mission();
     }
 
     private GameObject current_adventurer_inspected;
@@ -86,7 +89,12 @@ public class MissionRunnerHandler : MonoBehaviour {
         GameObject.Find("RunningMissionDescription").GetComponent<Text>().text = m.Description;
         GameObject.Find("RunningMissionReward").GetComponent<Text>().text = m.Reward.ToString();
         GameObject.Find("RunningMissionMaxAdventurers").GetComponent<Text>().text = m.MaxAdventurers.ToString();
-        GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = m.Adventurers.ToString();
+
+        if (m.Adventurers != null)
+            GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = m.Adventurers.ToString();
+        else
+            GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = "No Adventurers selected yet";
+
         GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = m.CurrentLocation.Value.Name;
         GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = m.CurrentStage.Value.DisplayName;
 

@@ -38,7 +38,7 @@ public class Party {
     public void useGroupSkill(SkillNames skill)
     {
         foreach (Adventurer a in Members)
-            a.Skills[(int)skill].CurrentUses += 1;
+            a.Skills[(int)skill].CurrentUses -= 1;
     }
 
 

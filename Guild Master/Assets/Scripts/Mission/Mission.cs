@@ -21,7 +21,7 @@ public class Mission : MonoBehaviour {
 
     public Location Destination;
 
-    public MissionContent.Target Target;
+    public Target Target;
 
     public MissionGoal Type;
 
@@ -127,6 +127,8 @@ public class Mission : MonoBehaviour {
         isRunning = false;
         isFinished = false;
 
+
+        // TODO: Move to interface class.
         RewardLabel.text = Reward.ToString();
         NameLabel.text = Name;  
 	}

@@ -74,6 +74,8 @@ public class Guild : MonoBehaviour {
 
     public LinkedList<Mission> RunningMissions;
 
+
+    // Move 
     public Button StartMission;
 
     public Text ErrorMessages;
@@ -102,17 +104,17 @@ public class Guild : MonoBehaviour {
             getSelectedMission.isAvailable = false;
             getSelectedMission.isSelected = false;
             SelectedMission = null;
-            // Only select a new mission if there is more than one available.
+            // Only select a new mission if there is more than one available. As if there is only one, it is the mission that was just started, but is still in the list.
             if (Missions.Count > 1)
             {
-                foreach (GameObject o in Missions)
+                foreach (GameObject available_missions in Missions)
                 {
-                    if (o == null)
+                    if (available_missions == null)
                         continue;
 
-                    if (o.GetComponent<Mission>().isAvailable)
+                    if (available_missions.GetComponent<Mission>().isAvailable)
                     {
-                        o.GetComponent<Mission>().onClicked();
+                        available_missions.GetComponent<Mission>().onClicked();
                         break; // Once a new mission is selected move on.
                     }
                 }
@@ -163,6 +165,7 @@ public class Guild : MonoBehaviour {
 
     }
 
+    // TODO: Move someplace else where it makes more sense...
     public void fireDailyEvent(object sender, EventArgs e)
     {
         GameObject game_event = Instantiate(EventDialogBox);
