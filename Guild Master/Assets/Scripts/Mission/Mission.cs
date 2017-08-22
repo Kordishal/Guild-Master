@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class Mission : MonoBehaviour {
 
+    public int Identifier;
+
     public string Name;
     public double Reward;
     public string Description;
@@ -13,19 +15,13 @@ public class Mission : MonoBehaviour {
     public int MaxAdventurers;
     public Party Adventurers;
 
-    public LinkedListNode<Location> CurrentLocation;
-    public LinkedList<Location> PathToMissionLocation;
+    public MissionGoal Goal;
+    public List<Target> Targets;
 
     public LinkedListNode<Stage> CurrentStage;
     public LinkedList<Stage> Stages;
 
-    public Location Destination;
-
-    public Target Target;
-
-    public MissionGoal Type;
-
-    public Guild guild;
+    public Guild Guild;
 
     public bool isSelected;
     public bool isAvailable;
@@ -41,7 +37,7 @@ public class Mission : MonoBehaviour {
         foreach (Adventurer a in Adventurers.Members)
             a.isAvailable = false;
 
-        guild.Calendar.hourlyTrigger += runningMission;
+        Guild.Calendar.hourlyTrigger += runningMission;
     }
 
     private void runningMission(object sender, EventArgs e)
@@ -69,9 +65,8 @@ public class Mission : MonoBehaviour {
             case Stage.FinishState.Failure:
                 if (CurrentStage.Value.Repeatability != -1)
                 {
-                    if (CurrentStage.Value.Repeated > CurrentStage.Value.Repeatability)
+                    if (CurrentStage.Value.Repeated >= CurrentStage.Value.Repeatability)
                     {
-                        CurrentStage.Value.FinishedWith = Stage.FinishState.Failure;
                         isFinished = true;
                         isSuccess = false;
                     }
@@ -107,30 +102,32 @@ public class Mission : MonoBehaviour {
 
     private void removeMission()
     {
-        guild.removeMission(gameObject);
-        guild.RunningMissions.Remove(this);
+        Guild.removeMission(gameObject);
+        Guild.RunningMissions.Remove(this);
         GetComponent<Button>().enabled = false;
-        guild.Calendar.hourlyTrigger -= runningMission;
+        Guild.Calendar.hourlyTrigger -= runningMission;
 
         Destroy(gameObject);
     }
 
+    public Text IdentifierLabel;
     public Text NameLabel;
     public Text RewardLabel;
 
     // Use this for initialization
     void Start () {
-        guild = GameObject.Find("Guild").GetComponent<Guild>();
+        Guild = GameObject.Find("Guild").GetComponent<Guild>();
 
+        // Are the same for every mission.
         isSelected = false;
         isAvailable = true;
         isRunning = false;
         isFinished = false;
 
-
-        // TODO: Move to interface class.
+        // Are here because they do not change and it is the same code for every mission.
+        IdentifierLabel.text = Identifier.ToString();
+        NameLabel.text = Name;
         RewardLabel.text = Reward.ToString();
-        NameLabel.text = Name;  
 	}
 	
 	// Update is called once per frame
@@ -155,16 +152,14 @@ public class Mission : MonoBehaviour {
         {
             if (!isSelected)
             {
-                if (guild.SelectedMission != null)
+                if (Guild.SelectedMission != null)
                 {
-                    var temp = guild.SelectedMission.GetComponent<Mission>();
+                    var temp = Guild.SelectedMission.GetComponent<Mission>();
                     temp.isSelected = false;
                 }
 
                 isSelected = true;
-                guild.SelectedMission = gameObject;
-                // TODO: Update this to properly show the mission in the apropriate part.
-                // guild.MissionDescription.text = Description;
+                Guild.SelectedMission = gameObject;
             }
         }
     }

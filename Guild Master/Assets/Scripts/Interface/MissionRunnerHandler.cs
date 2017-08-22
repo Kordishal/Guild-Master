@@ -86,6 +86,7 @@ public class MissionRunnerHandler : MonoBehaviour {
     {
         var m = current_mission_inspected.GetComponent<Mission>();
         GameObject.Find("RunningMissionTitle").GetComponent<Text>().text = m.Name;
+        GameObject.Find("MissionDisplayIdentifier").GetComponent<Text>().text = m.Identifier.ToString();
         GameObject.Find("RunningMissionDescription").GetComponent<Text>().text = m.Description;
         GameObject.Find("RunningMissionReward").GetComponent<Text>().text = m.Reward.ToString();
         GameObject.Find("RunningMissionMaxAdventurers").GetComponent<Text>().text = m.MaxAdventurers.ToString();
@@ -95,24 +96,20 @@ public class MissionRunnerHandler : MonoBehaviour {
         else
             GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = "No Adventurers selected yet";
 
-        GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = m.CurrentLocation.Value.Name;
+        if (m.CurrentStage.Value.CurrentLocation != null)
+            GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = m.CurrentStage.Value.CurrentLocation.Value.Name;
+
         GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = m.CurrentStage.Value.DisplayName;
 
         switch (m.CurrentStage.Value.Name)
         {
-            case StageNames.GoToDestination:
-                if (m.CurrentLocation != m.PathToMissionLocation.Last)
-                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(m.CurrentLocation.Value, m.CurrentLocation.Next.Value).ToString();
+            case StageNames.move_to_target:
+                if (m.CurrentStage.Value.CurrentLocation != m.CurrentStage.Value.path_to_target_location.Last)
+                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(m.CurrentStage.Value.CurrentLocation.Value, m.CurrentStage.Value.CurrentLocation.Next.Value).ToString();
                 GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = m.CurrentStage.Value.DistanceTraveled.ToString();
                 break;
             case StageNames.RetrieveTarget:
                 break;
-            case StageNames.ReturnToGuildHall:
-                if (m.CurrentLocation != m.PathToMissionLocation.First)
-                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(m.CurrentLocation.Value, m.CurrentLocation.Previous.Value).ToString();
-                GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = m.CurrentStage.Value.DistanceTraveled.ToString();
-                break;
-
         }
 
     }

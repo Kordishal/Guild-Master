@@ -58,7 +58,7 @@ public class GameEventDatabase : MonoBehaviour {
 
     public void addNewMission()
     {
-        Guild.addMission(GetComponent<GenerateMissions>().generateMission());
+        Guild.addMission(GetComponent<GenerateMissions>().generateMission(10));
     }
     public void addNewAdventurer()
     {

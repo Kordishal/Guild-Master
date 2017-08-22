@@ -5,43 +5,127 @@ using UnityEngine.UI;
 
 public class GenerateMissions : MonoBehaviour {
 
+    private static int mission_count = 0;
+
     public GameObject MissionButtonPrefab;
 
-    public GameObject generateMission()
+    public GameObject generateMission(int max_targets)
     {
         GameObject mission = Instantiate(MissionButtonPrefab);
-
+        Stage temp_stage;
 
         Mission m = mission.GetComponent<Mission>();
-        m.Type = Mission.MissionGoal.RetrieveTarget;
-        m.Destination = World.Places[Random.Range(0, World.Places.Count)];
-        m.Target = createTarget();
+        m.Identifier = mission_count;
+        mission_count += 1;
+        m.Goal = Mission.MissionGoal.RetrieveTarget;
+
+        m.Targets = new List<Target>();
+        for (int i = 0; i < max_targets; i++)
+            m.Targets.Add(createTarget());
 
         m.MaxAdventurers = 1;
 
         m.Reward = 10;
 
-        // Stages of the missions a adventurer has to go throught.
         m.Stages = new LinkedList<Stage>();
 
-        // Travel Stages        
-        m.Stages.AddFirst(new Stage(Stages[(int)StageNames.GoToDestination]));
+        // Adds a stage in the mission for each target which must be recovered, killed etc.
+        foreach (Target t in m.Targets)
+        {
+            temp_stage = new Stage();
 
-        // Fullfil Mission Stages
+            temp_stage.Target = t;
 
-        m.Stages.AddLast(new Stage(Stages[(int)StageNames.RetrieveTarget]));
+            switch (m.Goal)
+            {
+                case Mission.MissionGoal.RetrieveTarget:
+                    temp_stage.Name = StageNames.RetrieveTarget;
+                    temp_stage.DisplayName = "Retrieve " + temp_stage.Target.Name;
+                    // Implement a scaling difficulty depending on various factors.
+                    temp_stage.Difficulty = Random.Range(0, 10);
+                    temp_stage.Action = retrieveTarget;
+                    temp_stage.Repeatability = 10;                   
+                    break;
+            }
 
-        // Travel Back Stages
 
-        m.Stages.AddLast(new Stage(Stages[(int)StageNames.ReturnToGuildHall]));
+            m.Stages.AddLast(temp_stage);
+        }
+
+        // Now add a movement stage inbetween each to ensure that the party actually moves where the mission can be finished.
+
+        Location current_location = World.GuildHall;
+        LinkedListNode<Stage> current_stage = m.Stages.First;
+        do
+        {
+            if (current_stage.Value.Target.Location != current_location)
+            {
+                temp_stage = new Stage();
+                temp_stage.Name = StageNames.move_to_target;
+                temp_stage.DisplayName = "Move to " + current_stage.Value.Target.Location.Name;
+                temp_stage.Action = move;
+                temp_stage.Repeatability = -1;
+
+                temp_stage.path_to_target_location = World.findShortestPath(current_location, current_stage.Value.Target.Location);
+                temp_stage.CurrentLocation = temp_stage.path_to_target_location.First;
+
+                m.Stages.AddBefore(current_stage, temp_stage);
+            }
+
+            current_location = current_stage.Value.Target.Location;
+            if (current_stage.Next != null)
+                current_stage = current_stage.Next;
+
+        } while (current_stage != m.Stages.Last);
+
+        // Add a movement stage to return to the guild hall at the end.
+        temp_stage = new Stage();
+        temp_stage.Name = StageNames.move_to_target;
+        temp_stage.DisplayName = "Move to " + World.GuildHall;
+        temp_stage.Action = move;
+        temp_stage.Repeatability = -1;
+
+        temp_stage.path_to_target_location = World.findShortestPath(current_location, World.GuildHall);
+        temp_stage.CurrentLocation = temp_stage.path_to_target_location.First;
+
+        m.Stages.AddLast(temp_stage);
 
         m.CurrentStage = m.Stages.First;
 
-        m.PathToMissionLocation = new LinkedList<Location>(World.findShortestPath(World.GuildHall, m.Destination));
-        m.CurrentLocation = m.PathToMissionLocation.First;
+        string mission_name = "";
+        switch (m.Goal)
+        {
+            case Mission.MissionGoal.RetrieveTarget:
+                mission_name += "Find the Target";
+                break;
+        }
 
-        m.Name = "Mission: Find the " + m.Target.Name;
-        m.Description = "The " + m.Target.Name + " has been lost. Please find it for us!";
+
+        m.Name = mission_name;
+
+        string mission_description = "";
+
+        switch (m.Goal)
+        {
+            case Mission.MissionGoal.RetrieveTarget:
+                mission_description += "We lost the following item(s): ";
+                break;
+        }
+
+        foreach (Target t in m.Targets)
+            mission_description += t.Name + ", ";
+
+
+        mission_description += "Please find ";
+
+        if (m.Targets.Count > 1)
+            mission_description += "them ";
+        else
+            mission_description += "it ";
+
+        mission_description += "for us!";
+
+        m.Description = mission_description;
 
         return mission;
     }
@@ -52,42 +136,11 @@ public class GenerateMissions : MonoBehaviour {
 
         for (int i = 0; i < 5; i++)
         {
-            missions.Add(Instantiate(MissionButtonPrefab));
-
-            Mission m = missions[i].GetComponent<Mission>();
-            m.Type = Mission.MissionGoal.RetrieveTarget;
-            m.Destination = World.Places[Random.Range(0, World.Places.Count)];
-            m.Target = createTarget();
-
-            m.MaxAdventurers = 1;
-
-            m.Reward = 10;
-
-            // Stages of the missions a adventurer has to go throught.
-            m.Stages = new LinkedList<Stage>();
-
-            // Travel Stages        
-            m.Stages.AddFirst(new Stage(Stages[(int)StageNames.GoToDestination]));
-
-            // Fullfil Mission Stages
-
-            m.Stages.AddLast(new Stage(Stages[(int)StageNames.RetrieveTarget]));
-
-            // Travel Back Stages
-
-            m.Stages.AddLast(new Stage(Stages[(int)StageNames.ReturnToGuildHall]));
-
-            m.CurrentStage = m.Stages.First;
-
-            m.PathToMissionLocation = new LinkedList<Location>(World.findShortestPath(World.GuildHall, m.Destination));
-            m.CurrentLocation = m.PathToMissionLocation.First;
-
-            m.Name = "Mission: Find the " + m.Target.Name;
-            m.Description = "The " + m.Target.Name + " has been lost. Please find it for us!";
+            missions.Add(generateMission(1));
 
             // Make the first mission selected.
             if (i == 1)
-                m.onClicked();
+                missions[i].GetComponent<Mission>().onClicked();
         }
         return missions;
     }
@@ -95,12 +148,6 @@ public class GenerateMissions : MonoBehaviour {
     void Awake ()
     {
         Debug.Log("Generate Mission Parameters");
-
-        Stages = new Stage[(int)StageNames.MAX_STAGES];
-
-        Stages[(int)StageNames.GoToDestination] = new Stage(StageNames.GoToDestination, "Go to Destination", 3, goToLocationOfMission, -1);
-        Stages[(int)StageNames.RetrieveTarget] = new Stage(StageNames.RetrieveTarget, "Retrieve Target", 4, retrieveTarget, 10);
-        Stages[(int)StageNames.ReturnToGuildHall] = new Stage(StageNames.ReturnToGuildHall, "Return to Guild Hall", 1, returnToGuildHall, -1);
     }
 
 	// Use this for initialization
@@ -112,8 +159,6 @@ public class GenerateMissions : MonoBehaviour {
 	void Update () {
 		
 	}
-
-    public Stage[] Stages;
 
     private Target createTarget()
     {
@@ -137,39 +182,9 @@ public class GenerateMissions : MonoBehaviour {
 
 
     // STAGE ACTIONS
-    static private void travel(Mission mission)
+    static private void move(Mission mission)
     {
-
-    }
-
-    static private void returnToGuildHall(Mission mission)
-    {
-        if (mission.CurrentLocation.Value == World.GuildHall)
-            mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
-        else
-        {
-            int distance_required = World.getDistance(mission.CurrentLocation.Value, mission.CurrentLocation.Previous.Value);
-
-            if (mission.CurrentStage.Value.DistanceTraveled >= distance_required)
-            {
-                mission.CurrentStage.Value.DistanceTraveled = 0;
-                mission.CurrentLocation = mission.CurrentLocation.Previous;
-            }
-            else
-            {
-                var travel = mission.Adventurers.getFastestTravel();
-
-                if (travel.Distance > 0)
-                {
-                    mission.CurrentStage.Value.DistanceTraveled += travel.Distance;
-                }
-            }
-        }
-    }
-
-    static private void goToLocationOfMission(Mission mission)
-    {
-        int distance_required = World.getDistance(mission.CurrentLocation.Value, mission.CurrentLocation.Next.Value);
+        int distance_required = World.getDistance(mission.CurrentStage.Value.CurrentLocation.Value, mission.CurrentStage.Value.CurrentLocation.Next.Value);
 
         var travel = mission.Adventurers.getFastestTravel();
 
@@ -187,11 +202,11 @@ public class GenerateMissions : MonoBehaviour {
                     carry_over = mission.CurrentStage.Value.DistanceTraveled - distance_required;
 
                     mission.CurrentStage.Value.DistanceTraveled = 0;
-                    mission.CurrentLocation = mission.CurrentLocation.Next;
+                    mission.CurrentStage.Value.CurrentLocation = mission.CurrentStage.Value.CurrentLocation.Next;
 
                     mission.CurrentStage.Value.DistanceTraveled += carry_over;
 
-                    if (mission.CurrentLocation.Value == mission.Destination)
+                    if (mission.CurrentStage.Value.CurrentLocation == mission.CurrentStage.Value.path_to_target_location.Last)
                     {
                         mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
                         return;
@@ -208,7 +223,7 @@ public class GenerateMissions : MonoBehaviour {
     {
         SkillNames used_skill_name = SkillNames.LAST_ENTRY;
 
-        switch (mission.Target.Category)
+        switch (mission.CurrentStage.Value.Target.Category)
         {
             case Category.Animal:
                 used_skill_name = SkillNames.Tracking;

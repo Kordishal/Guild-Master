@@ -8,14 +8,32 @@ using System.Text;
 /// </summary>
 public class Stage
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public StageNames Name;
     public string DisplayName;
-    public int Difficulty;
     public StageAction Action;
     public int Repeatability;
     public int Repeated = 0;
+
+    public FinishState FinishedWith;
+
+    // TARGET STAGES ONLY.
+    public int Difficulty;
+    public Target Target;
+
+    // MOVEMENT STAGES ONLY.
     public double DistanceTraveled;
-    public FinishState FinishedWith = FinishState.None;
+    public LinkedListNode<Location> CurrentLocation;
+    public LinkedList<Location> path_to_target_location;
+
+    public Stage()
+    {
+        DistanceTraveled = 0;
+        Repeated = 0;
+        FinishedWith = FinishState.None;
+    }
 
     public Stage(StageNames name, string display_name, int difficulty, StageAction action, int repeatability)
     {
@@ -53,7 +71,7 @@ public class Stage
 /// </summary>
 public enum StageNames
 {
-    GoToDestination,
+    move_to_target,
     ReturnToGuildHall,
     RetrieveTarget,
 
