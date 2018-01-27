@@ -6,6 +6,9 @@ public class Location : MonoBehaviour {
 
     public string Name;
     public string Description;
+    public LocationType Type;
+
+    public bool hasShelter;
 
     public List<Adventurer> Adventurers;
 
@@ -28,4 +31,14 @@ public class Location : MonoBehaviour {
     {
         return Name == ((Location)other).Name;
     }
+}
+
+
+public enum LocationType
+{
+    Settlement, 
+    Building,
+    Forest,
+    Mountain,
+    Ruin,
 }

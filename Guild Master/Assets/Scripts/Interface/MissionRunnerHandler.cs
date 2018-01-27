@@ -91,27 +91,38 @@ public class MissionRunnerHandler : MonoBehaviour {
         GameObject.Find("RunningMissionReward").GetComponent<Text>().text = m.Reward.ToString();
         GameObject.Find("RunningMissionMaxAdventurers").GetComponent<Text>().text = m.MaxAdventurers.ToString();
 
-        if (m.Adventurers != null)
-            GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = m.Adventurers.ToString();
-        else
-            GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = "No Adventurers selected yet";
 
-        if (m.CurrentStage.Value.CurrentLocation != null)
-            GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = m.CurrentStage.Value.CurrentLocation.Value.Name;
-
-        GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = m.CurrentStage.Value.DisplayName;
-
-        switch (m.CurrentStage.Value.Name)
+        if (m.isRunning)
         {
-            case StageNames.move_to_target:
-                if (m.CurrentStage.Value.CurrentLocation != m.CurrentStage.Value.path_to_target_location.Last)
-                    GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(m.CurrentStage.Value.CurrentLocation.Value, m.CurrentStage.Value.CurrentLocation.Next.Value).ToString();
-                GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = m.CurrentStage.Value.DistanceTraveled.ToString();
-                break;
-            case StageNames.RetrieveTarget:
-                break;
-        }
+            GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = m.Adventurers.ToString();
 
+            GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = m.CurrentStage.Value.DisplayName;
+
+            if (m.Adventurers.CurrentLocation != null)
+            {
+                GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = m.Adventurers.CurrentLocation.Value.Name;
+
+                switch (m.CurrentStage.Value.Name)
+                {
+                    case StageNames.move_to_target:
+                        if (m.Adventurers.CurrentLocation != m.CurrentStage.Value.path_to_target_location.Last)
+                            GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(m.Adventurers.CurrentLocation.Value, m.Adventurers.CurrentLocation.Next.Value).ToString();
+                        GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = m.CurrentStage.Value.DistanceTraveled.ToString();
+                        break;
+                    case StageNames.RetrieveTarget:
+                        break;
+                }
+            }
+        }
+        else
+        {
+            GameObject.Find("RunningMissionAdventurers").GetComponent<Text>().text = "No Adventurers selected yet";
+            GameObject.Find("RunningMissionCurrentStage").GetComponent<Text>().text = "Not Running";
+
+            GameObject.Find("RunningMissionCurrentLocation").GetComponent<Text>().text = "None";
+            GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = "0";
+            GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = "0";
+        }
     }
 
     public void onChangedMissionCount(object sender, EventArgs e)

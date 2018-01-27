@@ -6,6 +6,62 @@ public class Party {
 
     public List<Adventurer> Members;
 
+    public LinkedListNode<Location> CurrentLocation;
+
+    public bool isCamping;
+    public bool isResting;
+
+    public bool camp_is_set_up;
+
+    public void rest()
+    {
+
+    }
+
+    public void setupCamp()
+    {
+        isCamping = true;
+        camp_is_set_up = false;
+
+        while (!camp_is_set_up)
+        {
+            switch (CurrentLocation.Value.Type)
+            {
+                case LocationType.Building:
+                    if (CurrentLocation.Value.hasShelter)
+                    {
+                        
+                    }    
+                    else
+                    {
+
+                    }
+
+                    break;
+                case LocationType.Settlement:
+                    break;
+                case LocationType.Forest:
+                    break;
+                case LocationType.Mountain:
+                    break;
+                case LocationType.Ruin:
+                    break;
+            }
+        }
+    }
+
+    public void camp()
+    {
+        if (Calendar.CurrentPartOfDay == PartOfDay.Night)
+        {
+            
+        }
+        else
+        {
+            isCamping = false;
+        }
+    }
+
     public Travel getFastestTravel()
     {
         // get all the movement stuff and figure out which one goes the fastest and the furthest. 
@@ -40,7 +96,6 @@ public class Party {
         foreach (Adventurer a in Members)
             a.Skills[(int)skill].CurrentUses -= 1;
     }
-
 
     public struct Travel
     {

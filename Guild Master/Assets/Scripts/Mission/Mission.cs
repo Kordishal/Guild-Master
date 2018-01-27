@@ -42,6 +42,19 @@ public class Mission : MonoBehaviour {
 
     private void runningMission(object sender, EventArgs e)
     {
+
+        if (Adventurers.isCamping)
+        {
+            Adventurers.camp();
+            return;
+        }
+
+        if (Adventurers.isResting)
+        {
+            Adventurers.rest();
+            return;
+        }
+            
         CurrentStage.Value.Action(this);
 
         CurrentStage.Value.Repeated += 1;

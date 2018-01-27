@@ -139,6 +139,19 @@ public class World : MonoBehaviour {
         return result;
     }
 
+    public static List<Location> getCloseNeighbours(Location current, int max_distance)
+    {
+        var temp = new List<Location>();
+
+        foreach (var location in WorldGraph[current])
+        {
+            if (location.Value <= max_distance)
+                temp.Add(location.Key);
+        }
+
+        return temp;
+    }
+
     void Start () {
         gameObject.SetActive(!gameObject.activeSelf);
     }

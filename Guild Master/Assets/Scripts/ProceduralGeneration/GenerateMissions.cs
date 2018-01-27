@@ -67,7 +67,6 @@ public class GenerateMissions : MonoBehaviour {
                 temp_stage.Repeatability = -1;
 
                 temp_stage.path_to_target_location = World.findShortestPath(current_location, current_stage.Value.Target.Location);
-                temp_stage.CurrentLocation = temp_stage.path_to_target_location.First;
 
                 m.Stages.AddBefore(current_stage, temp_stage);
             }
@@ -86,7 +85,6 @@ public class GenerateMissions : MonoBehaviour {
         temp_stage.Repeatability = -1;
 
         temp_stage.path_to_target_location = World.findShortestPath(current_location, World.GuildHall);
-        temp_stage.CurrentLocation = temp_stage.path_to_target_location.First;
 
         m.Stages.AddLast(temp_stage);
 
@@ -184,7 +182,10 @@ public class GenerateMissions : MonoBehaviour {
     // STAGE ACTIONS
     static private void move(Mission mission)
     {
-        int distance_required = World.getDistance(mission.CurrentStage.Value.CurrentLocation.Value, mission.CurrentStage.Value.CurrentLocation.Next.Value);
+        if (mission.Adventurers.CurrentLocation == null)
+            mission.Adventurers.CurrentLocation = mission.CurrentStage.Value.path_to_target_location.First;
+
+        int distance_required = World.getDistance(mission.Adventurers.CurrentLocation.Value, mission.Adventurers.CurrentLocation.Next.Value);
 
         var travel = mission.Adventurers.getFastestTravel();
 
@@ -202,13 +203,14 @@ public class GenerateMissions : MonoBehaviour {
                     carry_over = mission.CurrentStage.Value.DistanceTraveled - distance_required;
 
                     mission.CurrentStage.Value.DistanceTraveled = 0;
-                    mission.CurrentStage.Value.CurrentLocation = mission.CurrentStage.Value.CurrentLocation.Next;
+                    mission.Adventurers.CurrentLocation = mission.Adventurers.CurrentLocation.Next;
 
                     mission.CurrentStage.Value.DistanceTraveled += carry_over;
 
-                    if (mission.CurrentStage.Value.CurrentLocation == mission.CurrentStage.Value.path_to_target_location.Last)
+                    if (mission.Adventurers.CurrentLocation == mission.CurrentStage.Value.path_to_target_location.Last)
                     {
                         mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
+                        mission.Adventurers.CurrentLocation = null;
                         return;
                     }
                 }
@@ -216,6 +218,13 @@ public class GenerateMissions : MonoBehaviour {
                     carry_over = 0;
 
             } while (carry_over > 0);
+        }
+        else
+        {
+            if (Calendar.Hour >= 8 && Calendar.Hour <= 23)
+                mission.Adventurers.isResting = true;
+            else
+                mission.Adventurers.setupCamp();
         }
     }
 

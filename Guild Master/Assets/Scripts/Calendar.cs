@@ -9,7 +9,7 @@ public class Calendar : MonoBehaviour {
     private static float total_real_time_passed;
     private static float time_passed;
 
-    private static int hours;
+    public static int Hour;
     private static int total_hours;
 
     private static int days;
@@ -18,8 +18,9 @@ public class Calendar : MonoBehaviour {
     private static int year;
     private static int total_years;
 
-    private static Dictionary<string, List<int>> parts_of_day;
-    private static string current_part_of_day;
+    public static PartOfDay CurrentPartOfDay;
+    private static Dictionary<PartOfDay, List<int>> parts_of_day;
+
 
     private static int next_daily_event;
 
@@ -45,7 +46,7 @@ public class Calendar : MonoBehaviour {
         current_month = 0;
         current_season = 0;
 
-        hours = 9;
+        Hour = 9;
         total_hours = 0;
 
         days = 1;
@@ -57,12 +58,12 @@ public class Calendar : MonoBehaviour {
         total_real_time_passed = 0;
         time_passed = 0;
 
-        parts_of_day = new Dictionary<string, List<int>>();
-        parts_of_day.Add("Morning", new List<int> { 6, 7, 8, 9, 10, 11 });
-        parts_of_day.Add("Lunch", new List<int> { 12, 13 });
-        parts_of_day.Add("Afternoon", new List<int> { 14, 15, 16, 17, 18 });
-        parts_of_day.Add("Evening", new List<int> { 19, 20, 21, 22, 23 });
-        parts_of_day.Add("Night", new List<int> { 24, 1, 2, 3, 4, 5 });
+        parts_of_day = new Dictionary<PartOfDay, List<int>>();
+        parts_of_day.Add(PartOfDay.Morning, new List<int> { 6, 7, 8, 9, 10, 11 });
+        parts_of_day.Add(PartOfDay.Lunch, new List<int> { 12, 13 });
+        parts_of_day.Add(PartOfDay.Afternoon, new List<int> { 14, 15, 16, 17, 18 });
+        parts_of_day.Add(PartOfDay.Evening, new List<int> { 19, 20, 21, 22, 23 });
+        parts_of_day.Add(PartOfDay.Night, new List<int> { 24, 1, 2, 3, 4, 5 });
 
         // the first daily event is always at 12 o'clock.
         next_daily_event = 12;
@@ -84,18 +85,18 @@ public class Calendar : MonoBehaviour {
 
         if (time_passed > 0.5)
         {
-            hours += 1;
+            Hour += 1;
             total_hours += 1;
             determine_part_of_day();
             fire_advance_hour_trigger(new EventArgs());
 
-            if (next_daily_event == hours)
+            if (next_daily_event == Hour)
                 fire_daily_event_trigger(new EventArgs());
 
-            if (hours == 25)
+            if (Hour == 25)
             {
                 set_next_daily_event_hour();
-                hours = 1;
+                Hour = 1;
 
                 days += 1;
                 total_days += 1;
@@ -129,7 +130,7 @@ public class Calendar : MonoBehaviour {
     /// </summary>
     public static string getDateTime()
     {
-        return hours + "h - " + weekdays[current_weekday] + ", " + days + ". " + months[current_month] + " " + year + "; " + seasons[current_season];
+        return Hour + "h - " + weekdays[current_weekday] + ", " + days + ". " + months[current_month] + " " + year + "; " + seasons[current_season];
     }
 
     /// <summary>
@@ -165,16 +166,16 @@ public class Calendar : MonoBehaviour {
 
     private void determine_part_of_day()
     {
-        if (parts_of_day["Morning"].Contains(hours))
-            current_part_of_day = "Moring";
-        else if (parts_of_day["Lunch"].Contains(hours))
-            current_part_of_day = "Lunch";
-        else if (parts_of_day["Afternoon"].Contains(hours))
-            current_part_of_day = "Afternoon";
-        else if (parts_of_day["Evening"].Contains(hours))
-            current_part_of_day = "Evening";
-        else if (parts_of_day["Night"].Contains(hours))
-            current_part_of_day = "Night";
+        if (parts_of_day[PartOfDay.Morning].Contains(Hour))
+            CurrentPartOfDay = PartOfDay.Morning;
+        else if (parts_of_day[PartOfDay.Lunch].Contains(Hour))
+            CurrentPartOfDay = PartOfDay.Lunch;
+        else if (parts_of_day[PartOfDay.Afternoon].Contains(Hour))
+            CurrentPartOfDay = PartOfDay.Afternoon;
+        else if (parts_of_day[PartOfDay.Evening].Contains(Hour))
+            CurrentPartOfDay = PartOfDay.Evening;
+        else if (parts_of_day[PartOfDay.Night].Contains(Hour))
+            CurrentPartOfDay = PartOfDay.Night;
     }
 
 
@@ -189,19 +190,19 @@ public class Calendar : MonoBehaviour {
         switch (chance)
         {
             case 0:
-                next_daily_event = parts_of_day["Morning"][UnityEngine.Random.Range(0, parts_of_day["Morning"].Count)];
+                next_daily_event = parts_of_day[PartOfDay.Morning][UnityEngine.Random.Range(0, parts_of_day[PartOfDay.Morning].Count)];
                 break;
             case 1:
-                next_daily_event = parts_of_day["Lunch"][UnityEngine.Random.Range(0, parts_of_day["Lunch"].Count)];
+                next_daily_event = parts_of_day[PartOfDay.Lunch][UnityEngine.Random.Range(0, parts_of_day[PartOfDay.Lunch].Count)];
                 break;
             case 2:
-                next_daily_event = parts_of_day["Afternoon"][UnityEngine.Random.Range(0, parts_of_day["Afternoon"].Count)];
+                next_daily_event = parts_of_day[PartOfDay.Afternoon][UnityEngine.Random.Range(0, parts_of_day[PartOfDay.Afternoon].Count)];
                 break;
             case 3:
-                next_daily_event = parts_of_day["Evening"][UnityEngine.Random.Range(0, parts_of_day["Evening"].Count)];
+                next_daily_event = parts_of_day[PartOfDay.Evening][UnityEngine.Random.Range(0, parts_of_day[PartOfDay.Evening].Count)];
                 break;
             case 4:
-                next_daily_event = parts_of_day["Night"][UnityEngine.Random.Range(0, parts_of_day["Night"].Count)];
+                next_daily_event = parts_of_day[PartOfDay.Night][UnityEngine.Random.Range(0, parts_of_day[PartOfDay.Night].Count)];
                 break;
         }
     }
@@ -223,4 +224,13 @@ public class Calendar : MonoBehaviour {
         if (handler != null)
             handler(this, e);
     }
+}
+
+public enum PartOfDay
+{
+    Morning,
+    Lunch,
+    Afternoon,
+    Evening,
+    Night,
 }

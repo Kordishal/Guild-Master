@@ -21,6 +21,7 @@ public class GenerateWorld : MonoBehaviour {
         Location home_town = HomeTown.GetComponent<Location>();
         home_town.Name = "Tarzinai";
         home_town.Description = "The town your guild resides in. It is a frontier town of humans & orcs.";
+        home_town.Type = LocationType.Settlement;
         World.Places.Add(home_town);
 
         GameObject GuildHall = new GameObject();
@@ -30,6 +31,7 @@ public class GenerateWorld : MonoBehaviour {
         Location guild_hall = GuildHall.GetComponent<Location>();
         guild_hall.Name = "The Best Guild Hall";
         guild_hall.Description = "Your Home.";
+        guild_hall.Type = LocationType.Building;
         World.GuildHall = guild_hall;
 
         GameObject Inn = new GameObject();
@@ -39,6 +41,7 @@ public class GenerateWorld : MonoBehaviour {
         Location inn = Inn.GetComponent<Location>();
         inn.Name = "Waywards Inn";
         inn.Description = "A living place where people from all over gather to eat, drink and exchange stories.";
+        inn.Type = LocationType.Building;
         World.Places.Add(inn);
 
         GameObject Forest = new GameObject();
@@ -48,6 +51,7 @@ public class GenerateWorld : MonoBehaviour {
         Location forest = Forest.GetComponent<Location>();
         forest.Name = "The Northern Forest";
         forest.Description = "An uncharted thick forest with many monsters and other beings living within it. Tread carefully.";
+        forest.Type = LocationType.Forest;
         World.Places.Add(forest);
 
         GameObject Village = new GameObject();
@@ -57,6 +61,7 @@ public class GenerateWorld : MonoBehaviour {
         Location village = Village.GetComponent<Location>();
         village.Name = "Downhill";
         village.Description = "A small village in the forest. Not much happens here.";
+        village.Type = LocationType.Settlement;
         World.Places.Add(village);
 
         GameObject MountainRange = new GameObject();
@@ -66,6 +71,7 @@ public class GenerateWorld : MonoBehaviour {
         Location mountain_range = MountainRange.GetComponent<Location>();
         mountain_range.Name = "The Khardrathic Mountains";
         mountain_range.Description = "To the east is a massive mountain range with many very high mountains. Dangerous beasts live here, but caverns within the mountains promise great ancient treasures.";
+        mountain_range.Type = LocationType.Mountain;
         World.Places.Add(mountain_range);
 
         GameObject DwarvenFortress = new GameObject();
@@ -75,6 +81,7 @@ public class GenerateWorld : MonoBehaviour {
         Location dwarven_fortress = DwarvenFortress.GetComponent<Location>();
         dwarven_fortress.Name = "Tori'dahl Ziurak";
         dwarven_fortress.Description = "A massiv and well guarded fortress of the dwarven kingdom.";
+        dwarven_fortress.Type = LocationType.Settlement;
         World.Places.Add(dwarven_fortress);
 
         GameObject EasternForest = new GameObject();
@@ -84,6 +91,7 @@ public class GenerateWorld : MonoBehaviour {
         Location eastern_forest = EasternForest.GetComponent<Location>();
         eastern_forest.Name = "The Dark Woods";
         eastern_forest.Description = "Before the Khardrathic Mountains the Dark Woods can be found.";
+        eastern_forest.Type = LocationType.Forest;
         World.Places.Add(eastern_forest);
 
         GameObject AncientRuin = new GameObject();
@@ -93,6 +101,7 @@ public class GenerateWorld : MonoBehaviour {
         Location ancient_ruin = AncientRuin.GetComponent<Location>();
         ancient_ruin.Name = "The Hidden Ruins of the Lanatiel";
         ancient_ruin.Description = "Deep inside of the Dark Wood an ancient ruin can be found. Legends tell that the mythical Lanatiels dwelled here. Maybe they left behind some treasure?";
+        ancient_ruin.Type = LocationType.Ruin;
         World.Places.Add(ancient_ruin);
 
 
