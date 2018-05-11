@@ -7,54 +7,22 @@ public class GenerateAdventurers : MonoBehaviour
 {
 
     public GameObject AdventurerPrefab;
-    public GameObject generateAdventurer()
+    public GameObject GenerateRandormStartUpAdventurer()
     {
         GameObject adventurer = Instantiate(AdventurerPrefab);
 
         var a = adventurer.GetComponent<Adventurer>();
-        a.Name = names[Random.Range(0, names.Count)];
-        a.Level = 1;
-        a.Cost = 0.1;
-
-        a.Skills = new List<Skill>();
+        var skills = new List<Skill>();
 
         for (int j = 0; j < skill_list.Length; j++)
         {
-            a.Skills.Add(new Skill(skill_list[j]));
-            a.Skills[j].addLevels(Random.Range(0, 5));
+            skills.Add(new Skill(skill_list[j]));
+            skills[j].addLevels(Random.Range(0, 5));
         }
-
-        a.Location = World.GuildHall;
+    
+        a.Initialize(names[Random.Range(0, names.Count)], 1, skills, World.GuildHall, 0.1);
         World.GuildHall.Adventurers.Add(a);
         return adventurer;
-    }
-
-
-    public List<GameObject> generateStartUpAdventurers()
-    {
-        List<GameObject> adventurers = new List<GameObject>();
-
-        for (int i = 0; i < 5; i++)
-        {
-            adventurers.Add(Instantiate(AdventurerPrefab));
-
-            var adventurer = adventurers[i].GetComponent<Adventurer>();
-            adventurer.Name = names[Random.Range(0, names.Count)];
-            adventurer.Level = 1;
-            adventurer.Cost = 0.1;
-
-            adventurer.Skills = new List<Skill>();
-
-            for (int j = 0; j < skill_list.Length; j++)
-            {
-                adventurer.Skills.Add(new Skill(skill_list[j]));
-                adventurer.Skills[j].addLevels(Random.Range(0, 5));
-            }
-
-            adventurer.Location = World.GuildHall;
-            World.GuildHall.Adventurers.Add(adventurer);
-        }
-        return adventurers;
     }
 
 
@@ -95,8 +63,6 @@ public class GenerateAdventurers : MonoBehaviour
         rect.position = new Vector3(rect.position.x, rect.position.y, 0);
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 16 * (skill_list.Length));
     }
-
-    void Update() { }
 
     private Skill[] skill_list;
 

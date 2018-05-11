@@ -114,7 +114,7 @@ public class Guild : MonoBehaviour {
 
                     if (available_missions.GetComponent<Mission>().isAvailable)
                     {
-                        available_missions.GetComponent<Mission>().onClicked();
+                        available_missions.GetComponent<Mission>().OnClicked();
                         break; // Once a new mission is selected move on.
                     }
                 }
@@ -130,7 +130,7 @@ public class Guild : MonoBehaviour {
             RunningMissions.AddLast(m);
                 
 
-            m.startMission(advs);
+            m.StartMission(advs);
 
             foreach (var adv in getSelectedAdventurers)
                 adv.isSelected = false;
@@ -156,7 +156,7 @@ public class Guild : MonoBehaviour {
 
         ErrorMessages.text = "Everything is Okay";
 
-        Calendar.dailyEventTrigger += fireDailyEvent;
+        Calendar.dailyEventTrigger += FireDailyEvent;
         CurrentWealth = 1000;
     }
 	
@@ -166,7 +166,7 @@ public class Guild : MonoBehaviour {
     }
 
     // TODO: Move someplace else where it makes more sense...
-    public void fireDailyEvent(object sender, EventArgs e)
+    public void FireDailyEvent(object sender, EventArgs e)
     {
         GameObject game_event = Instantiate(EventDialogBox);
     }

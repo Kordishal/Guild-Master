@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class Adventurer : MonoBehaviour {
 
     private string _name;
-    public string Name { get { return _name; } set { _name = value; } }
+    public string Name { get { return _name; } }
 
     private int _level;
     public int Level { get { return _level; } set { _level = value; } }
@@ -20,6 +20,15 @@ public class Adventurer : MonoBehaviour {
 
     private double _cost;
     public double Cost { get { return _cost; } set { _cost = value; } }
+
+    public void Initialize(string name, int level, List<Skill> skills, Location location, double cost)
+    {
+        _name = name;
+        _level = level;
+        _skills = skills;
+        _location = location;
+        _cost = cost;
+    }
 
 
     public bool isSelected;

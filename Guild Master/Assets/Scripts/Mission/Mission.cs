@@ -30,28 +30,28 @@ public class Mission : MonoBehaviour {
     public bool isSuccess;
     public bool isFinished;
 
-    public void startMission(List<Adventurer> adventurers)
+    public void StartMission(List<Adventurer> adventurers)
     {
         isRunning = true;
         Adventurers = new Party(adventurers);
         foreach (Adventurer a in Adventurers.Members)
             a.isAvailable = false;
 
-        Guild.Calendar.hourlyTrigger += runningMission;
+        Guild.Calendar.hourlyTrigger += RunningMission;
     }
 
-    private void runningMission(object sender, EventArgs e)
+    private void RunningMission(object sender, EventArgs e)
     {
 
         if (Adventurers.isCamping)
         {
-            Adventurers.camp();
+            Adventurers.Camp();
             return;
         }
 
         if (Adventurers.isResting)
         {
-            Adventurers.rest();
+            Adventurers.Rest();
             return;
         }
             
@@ -89,11 +89,11 @@ public class Mission : MonoBehaviour {
 
         if (isFinished)
         {
-            endMission();
+            EndMission();
         }
     }
 
-    public void endMission()
+    public void EndMission()
     {
         // decrease reward by the cost of the adventurers.
         // Only assign reward if the mission was a success.
@@ -110,15 +110,15 @@ public class Mission : MonoBehaviour {
         }
 
         isRunning = false;
-        removeMission();
+        RemoveMission();
     }
 
-    private void removeMission()
+    private void RemoveMission()
     {
         Guild.removeMission(gameObject);
         Guild.RunningMissions.Remove(this);
         GetComponent<Button>().enabled = false;
-        Guild.Calendar.hourlyTrigger -= runningMission;
+        Guild.Calendar.hourlyTrigger -= RunningMission;
 
         Destroy(gameObject);
     }
@@ -145,10 +145,10 @@ public class Mission : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        adjustButtonColor();
+        AdjustButtonColor();
 	}
 
-    private void adjustButtonColor()
+    private void AdjustButtonColor()
     {
         if (isSelected)
            GetComponent<Button>().image.color = Color.blue;
@@ -159,7 +159,7 @@ public class Mission : MonoBehaviour {
     }
 
     // Only if the mission is available.
-    public void onClicked()
+    public void OnClicked()
     {
         if (isAvailable)
         {

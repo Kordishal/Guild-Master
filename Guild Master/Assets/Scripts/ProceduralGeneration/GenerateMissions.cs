@@ -43,7 +43,7 @@ public class GenerateMissions : MonoBehaviour {
                     temp_stage.DisplayName = "Retrieve " + temp_stage.Target.Name;
                     // Implement a scaling difficulty depending on various factors.
                     temp_stage.Difficulty = Random.Range(0, 10);
-                    temp_stage.Action = retrieveTarget;
+                    temp_stage.Action = RetrieveTarget;
                     temp_stage.Repeatability = 10;                   
                     break;
             }
@@ -63,10 +63,10 @@ public class GenerateMissions : MonoBehaviour {
                 temp_stage = new Stage();
                 temp_stage.Name = StageNames.move_to_target;
                 temp_stage.DisplayName = "Move to " + current_stage.Value.Target.Location.Name;
-                temp_stage.Action = move;
+                temp_stage.Action = Move;
                 temp_stage.Repeatability = -1;
 
-                temp_stage.path_to_target_location = World.findShortestPath(current_location, current_stage.Value.Target.Location);
+                temp_stage.PathToTargetLocation = World.findShortestPath(current_location, current_stage.Value.Target.Location);
 
                 m.Stages.AddBefore(current_stage, temp_stage);
             }
@@ -81,10 +81,10 @@ public class GenerateMissions : MonoBehaviour {
         temp_stage = new Stage();
         temp_stage.Name = StageNames.move_to_target;
         temp_stage.DisplayName = "Move to " + World.GuildHall;
-        temp_stage.Action = move;
+        temp_stage.Action = Move;
         temp_stage.Repeatability = -1;
 
-        temp_stage.path_to_target_location = World.findShortestPath(current_location, World.GuildHall);
+        temp_stage.PathToTargetLocation = World.findShortestPath(current_location, World.GuildHall);
 
         m.Stages.AddLast(temp_stage);
 
@@ -138,7 +138,7 @@ public class GenerateMissions : MonoBehaviour {
 
             // Make the first mission selected.
             if (i == 1)
-                missions[i].GetComponent<Mission>().onClicked();
+                missions[i].GetComponent<Mission>().OnClicked();
         }
         return missions;
     }
@@ -180,19 +180,19 @@ public class GenerateMissions : MonoBehaviour {
 
 
     // STAGE ACTIONS
-    static private void move(Mission mission)
+    static private void Move(Mission mission)
     {
         if (mission.Adventurers.CurrentLocation == null)
-            mission.Adventurers.CurrentLocation = mission.CurrentStage.Value.path_to_target_location.First;
+            mission.Adventurers.CurrentLocation = mission.CurrentStage.Value.PathToTargetLocation.First;
 
         int distance_required = World.getDistance(mission.Adventurers.CurrentLocation.Value, mission.Adventurers.CurrentLocation.Next.Value);
 
-        var travel = mission.Adventurers.getFastestTravel();
+        var travel = mission.Adventurers.GetFastestTravel();
 
         if (travel.Distance > 0)
         {
             mission.CurrentStage.Value.DistanceTraveled += travel.Distance;
-            mission.Adventurers.useGroupSkill(travel.SkillUsed);
+            mission.Adventurers.UseGroupSkill(travel.SkillUsed);
 
             double carry_over = 0;
 
@@ -203,14 +203,13 @@ public class GenerateMissions : MonoBehaviour {
                     carry_over = mission.CurrentStage.Value.DistanceTraveled - distance_required;
 
                     mission.CurrentStage.Value.DistanceTraveled = 0;
-                    mission.Adventurers.CurrentLocation = mission.Adventurers.CurrentLocation.Next;
+                    mission.Adventurers.Move();
 
                     mission.CurrentStage.Value.DistanceTraveled += carry_over;
 
-                    if (mission.Adventurers.CurrentLocation == mission.CurrentStage.Value.path_to_target_location.Last)
+                    if (mission.Adventurers.CurrentLocation == mission.CurrentStage.Value.PathToTargetLocation.Last)
                     {
                         mission.CurrentStage.Value.FinishedWith = Stage.FinishState.Success;
-                        mission.Adventurers.CurrentLocation = null;
                         return;
                     }
                 }
@@ -224,11 +223,11 @@ public class GenerateMissions : MonoBehaviour {
             if (Calendar.Hour >= 8 && Calendar.Hour <= 23)
                 mission.Adventurers.isResting = true;
             else
-                mission.Adventurers.setupCamp();
+                mission.Adventurers.SetupCamp();
         }
     }
 
-    static private void retrieveTarget(Mission mission)
+    static private void RetrieveTarget(Mission mission)
     {
         SkillNames used_skill_name = SkillNames.LAST_ENTRY;
 

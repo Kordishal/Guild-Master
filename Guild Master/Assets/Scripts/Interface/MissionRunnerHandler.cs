@@ -17,8 +17,8 @@ public class MissionRunnerHandler : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Guild.change_mission_amount += onChangedMissionCount;
-        Guild.change_adventurer_amount += onChangedAdventurerCount; 
+        Guild.change_mission_amount += OnChangedMissionCount;
+        Guild.change_adventurer_amount += OnChangedAdventurerCount; 
 	}
 
     // Update is called once per frame
@@ -26,14 +26,14 @@ public class MissionRunnerHandler : MonoBehaviour {
     {
         //TODO: Change it so this only runs if there is a change to the adventurer;
         if (current_adventurer_inspected != null)
-            display_inspected_adventurer();
+            DisplayInspectedAdventurer();
 
         if (current_mission_inspected != null)
-            display_inspected_mission();
+            DisplayInspectedMission();
     }
 
     private GameObject current_adventurer_inspected;
-    public void inspectNextAdventurer()
+    public void InspectNextAdventurer()
     {
         if (Guild.Adventurers.Count == 0)
             return;
@@ -49,7 +49,7 @@ public class MissionRunnerHandler : MonoBehaviour {
                 current_adventurer_inspected = Guild.Adventurers[i];
         }
     }
-    private void display_inspected_adventurer()
+    private void DisplayInspectedAdventurer()
     {
         var adv = current_adventurer_inspected.GetComponent<Adventurer>();
         GameObject.Find("AdventurerName").GetComponent<Text>().text = adv.Name;
@@ -65,7 +65,7 @@ public class MissionRunnerHandler : MonoBehaviour {
     }
 
     private GameObject current_mission_inspected;
-    public void inspectNextMission()
+    public void InspectNextMission()
     {
         if (Guild.Missions.Count == 0)
             return;
@@ -82,7 +82,7 @@ public class MissionRunnerHandler : MonoBehaviour {
         }
     }
 
-    private void display_inspected_mission()
+    private void DisplayInspectedMission()
     {
         var m = current_mission_inspected.GetComponent<Mission>();
         GameObject.Find("RunningMissionTitle").GetComponent<Text>().text = m.Name;
@@ -105,7 +105,7 @@ public class MissionRunnerHandler : MonoBehaviour {
                 switch (m.CurrentStage.Value.Name)
                 {
                     case StageNames.move_to_target:
-                        if (m.Adventurers.CurrentLocation != m.CurrentStage.Value.path_to_target_location.Last)
+                        if (m.Adventurers.CurrentLocation != m.CurrentStage.Value.PathToTargetLocation.Last)
                             GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(m.Adventurers.CurrentLocation.Value, m.Adventurers.CurrentLocation.Next.Value).ToString();
                         GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = m.CurrentStage.Value.DistanceTraveled.ToString();
                         break;
@@ -125,7 +125,7 @@ public class MissionRunnerHandler : MonoBehaviour {
         }
     }
 
-    public void onChangedMissionCount(object sender, EventArgs e)
+    public void OnChangedMissionCount(object sender, EventArgs e)
     {
         int count = 1;
         foreach (GameObject mission in ((Guild)sender).Missions)
@@ -146,7 +146,7 @@ public class MissionRunnerHandler : MonoBehaviour {
         content_rect.offsetMin = new Vector2(content_rect.offsetMin.x, -60 * (count - 1));
     }
 
-    public void onChangedAdventurerCount(object sender, EventArgs e)
+    public void OnChangedAdventurerCount(object sender, EventArgs e)
     {
         int count = 1;
         foreach (GameObject adventurer in ((Guild)sender).Adventurers)

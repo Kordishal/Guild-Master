@@ -62,7 +62,7 @@ public class GameEventDatabase : MonoBehaviour {
     }
     public void addNewAdventurer()
     {
-        Guild.addAdventurer(GetComponent<GenerateAdventurers>().generateAdventurer());
+        Guild.addAdventurer(GetComponent<GenerateAdventurers>().GenerateRandormStartUpAdventurer());
     }
 
     public enum EventType

@@ -4,31 +4,45 @@ using UnityEngine;
 
 public class Party {
 
-    public List<Adventurer> Members;
+    private List<Adventurer> _members;
+    public List<Adventurer> Members { get { return _members; } }
 
-    public LinkedListNode<Location> CurrentLocation;
+    private LinkedListNode<Location> _current_location;
+    public LinkedListNode<Location> CurrentLocation { get { return _current_location; } }
+
+    private LinkedList<Location> _path;
+    public LinkedList<Location> Path { set { _path = value; } }
+
+    public void Move()
+    {
+        _current_location = _current_location.Next;
+        foreach (var member in _members)
+            member.Location = _current_location.Value;
+    }
+
 
     public bool isCamping;
     public bool isResting;
 
-    public bool camp_is_set_up;
+    private bool _campIsSetUp;
+    public bool CampIsSetUp { get { return _campIsSetUp; } }
 
-    public void rest()
+    public void Rest()
     {
 
     }
 
-    public void setupCamp()
+    public void SetupCamp()
     {
         isCamping = true;
-        camp_is_set_up = false;
+        _campIsSetUp = false;
 
-        while (!camp_is_set_up)
+        while (!CampIsSetUp)
         {
-            switch (CurrentLocation.Value.Type)
+            switch (_current_location.Value.Type)
             {
                 case LocationType.Building:
-                    if (CurrentLocation.Value.hasShelter)
+                    if (_current_location.Value.hasShelter)
                     {
                         
                     }    
@@ -50,7 +64,7 @@ public class Party {
         }
     }
 
-    public void camp()
+    public void Camp()
     {
         if (Calendar.CurrentPartOfDay == PartOfDay.Night)
         {
@@ -62,13 +76,13 @@ public class Party {
         }
     }
 
-    public Travel getFastestTravel()
+    public Travel GetFastestTravel()
     {
         // get all the movement stuff and figure out which one goes the fastest and the furthest. 
         double max_distance_walking = int.MaxValue;
         bool all_adventurers_can_still_walk = true;
 
-        foreach (Adventurer a in Members)
+        foreach (Adventurer a in _members)
         {
             if (a.Skills[(int)SkillNames.Walking].CurrentUses > 0)
             {
@@ -91,9 +105,9 @@ public class Party {
         }
     }
 
-    public void useGroupSkill(SkillNames skill)
+    public void UseGroupSkill(SkillNames skill)
     {
-        foreach (Adventurer a in Members)
+        foreach (Adventurer a in _members)
             a.Skills[(int)skill].CurrentUses -= 1;
     }
 
@@ -111,13 +125,13 @@ public class Party {
 
     public Party(List<Adventurer> adventurers)
     {
-        Members = adventurers;
+        _members = adventurers;
     }
 
     public override string ToString()
     {
         string print = "";
-        foreach (Adventurer a in Members)
+        foreach (Adventurer a in _members)
             print += a.Name + " | ";
 
         return print;

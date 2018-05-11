@@ -25,7 +25,7 @@ public class Stage
 
     // MOVEMENT STAGES ONLY.
     public double DistanceTraveled;
-    public LinkedList<Location> path_to_target_location;
+    public LinkedList<Location> PathToTargetLocation;
 
     public Stage()
     {
