@@ -123,7 +123,7 @@ public class Guild : MonoBehaviour {
               
             foreach (Adventurer a in getSelectedAdventurers)
             {
-                a.onClicked();
+                a.OnClicked();
                 a.isAvailable = false;
             }
 

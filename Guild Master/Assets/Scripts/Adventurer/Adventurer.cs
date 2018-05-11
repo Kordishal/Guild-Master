@@ -6,14 +6,21 @@ using UnityEngine.UI;
 
 public class Adventurer : MonoBehaviour {
 
-    public string Name;
-    public int Level;
+    private string _name;
+    public string Name { get { return _name; } set { _name = value; } }
 
-    public List<Skill> Skills;
+    private int _level;
+    public int Level { get { return _level; } set { _level = value; } }
 
-    public Location Location;
+    private List<Skill> _skills;
+    public List<Skill> Skills { get { return _skills; } set { _skills = value; } }
 
-    public double Cost;
+    private Location _location;
+    public Location Location { get { return _location; } set { _location = value; } }
+
+    private double _cost;
+    public double Cost { get { return _cost; } set { _cost = value; } }
+
 
     public bool isSelected;
     public bool isAvailable;
@@ -22,16 +29,11 @@ public class Adventurer : MonoBehaviour {
     public Text LevelLabel;
     public Text CostLabel;
 
-    public Guild guild;
+    private Guild _guild;
+    public Guild Guild { get { return _guild; } set { _guild = value; } }
 
-	// Use this for initialization
 	void Start () {
-        guild = GameObject.Find("Guild").GetComponent<Guild>();
-
-
-
-        // Increases the space used by the content panel of the viewport. This is necessary as otherwise the viewport will not detect when the buttons will overflow its view.
-
+        _guild = GameObject.Find("Guild").GetComponent<Guild>();
 
         NameLabel.text = Name;
         LevelLabel.text = Level.ToString();
@@ -41,34 +43,33 @@ public class Adventurer : MonoBehaviour {
         isAvailable = true; 
     }
 
-    // Update is called once per frame
     void Update()
     {
-        adjustButtonColor();
+        AdjustButtonColor();
     }
 
-    public void onClicked()
+    public void OnClicked()
     {
         // Only fire the event if the adventurer is available.
-        if (isAvailable && guild.SelectedMission != null)
+        if (isAvailable && _guild.SelectedMission != null)
         {
             // When the adventurer is already selected always deselect them.
             if (isSelected)
             {
-                guild.SelectedAdventurers.Remove(gameObject);
+                _guild.SelectedAdventurers.Remove(gameObject);
                 isSelected = false;
             }
-            else if (guild.getSelectedMission.MaxAdventurers > guild.SelectedAdventurers.Count)
+            else if (_guild.getSelectedMission.MaxAdventurers > _guild.SelectedAdventurers.Count)
             {
                 // when there is still space make the adventurer part of the party.
-                guild.SelectedAdventurers.Add(gameObject);
+                _guild.SelectedAdventurers.Add(gameObject);
                 isSelected = true;
             }
             // Otherwise do nothing.
         }
     }
 
-    private void adjustButtonColor()
+    private void AdjustButtonColor()
     {
         if (isSelected)
             GetComponent<Button>().image.color = Color.blue;
