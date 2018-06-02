@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+
 
 public class Party {
 
@@ -10,8 +9,20 @@ public class Party {
     private LinkedListNode<Location> _current_location;
     public LinkedListNode<Location> CurrentLocation { get { return _current_location; } }
 
-    private LinkedList<Location> _path;
-    public LinkedList<Location> Path { set { _path = value; } }
+    public void AddPathToTarget(LinkedList<Location> path)
+    {
+        if (_current_location == null)
+        {
+            _current_location = path.First;
+        }
+        else
+        {
+            foreach (var loc in path)
+            {
+                _current_location.List.AddLast(loc);
+            }
+        }
+    }
 
     public void Move()
     {

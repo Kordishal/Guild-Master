@@ -1,29 +1,32 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GenerateAdventurers : MonoBehaviour
 {
 
     public GameObject AdventurerPrefab;
-    public GameObject GenerateRandormStartUpAdventurer()
+    public List<GameObject> GenerateRandormStartUpAdventurers(int n)
     {
-        GameObject adventurer = Instantiate(AdventurerPrefab);
-
-        var a = adventurer.GetComponent<Adventurer>();
-        var skills = new List<Skill>();
-
-        for (int j = 0; j < skill_list.Length; j++)
+        var adventurers = new List<GameObject>();
+        for (int i = 0; i < n; i++)
         {
-            skills.Add(new Skill(skill_list[j]));
-            skills[j].addLevels(Random.Range(0, 5));
+            GameObject adventurer = Instantiate(AdventurerPrefab);
+
+            var a = adventurer.GetComponent<Adventurer>();
+            var skills = new List<Skill>();
+
+            for (int j = 0; j < skill_list.Length; j++)
+            {
+                skills.Add(new Skill(skill_list[j]));
+                skills[j].addLevels(Random.Range(0, 5));
+            }
+
+            a.Initialize(names[Random.Range(0, names.Count)], 1, skills, World.GuildHall, 0.1);
+            World.GuildHall.Adventurers.Add(a);
+            adventurers.Add(adventurer);
         }
-    
-        a.Initialize(names[Random.Range(0, names.Count)], 1, skills, World.GuildHall, 0.1);
-        World.GuildHall.Adventurers.Add(a);
-        return adventurer;
-    }
+        return adventurers;
+    }   
 
 
     void Awake()

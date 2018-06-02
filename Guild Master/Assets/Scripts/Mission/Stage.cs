@@ -70,7 +70,7 @@ public class Stage
 /// </summary>
 public enum StageNames
 {
-    move_to_target,
+    MoveToTarget,
     ReturnToGuildHall,
     RetrieveTarget,
 

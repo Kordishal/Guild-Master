@@ -17,10 +17,10 @@ public class GameEventDatabase : MonoBehaviour {
         GAME_EVENTS = new List<GameEventImplementation>();
 
         GAME_EVENTS.Add(new GameEventImplementation("New Mission", "Images/Events/default_event_picture.png", 
-            "You have recieved a new mission!", EventType.Mission, EventFrequencyType.Daily, 50, addNewMission, nothing));
+            "You have recieved a new mission!", EventType.Mission, EventFrequencyType.Daily, 50, AddNewMission, Nothing));
 
         GAME_EVENTS.Add(new GameEventImplementation("New Adventurer", "Images/Events/default_event_picture.png", 
-            "A new adventurer has joined your guild!", EventType.Adventurer, EventFrequencyType.Daily, 50, addNewAdventurer, nothing));
+            "A new adventurer has joined your guild!", EventType.Adventurer, EventFrequencyType.Daily, 50, AddNewAdventurer, Nothing));
     }
 	
 	// Update is called once per frame
@@ -54,15 +54,15 @@ public class GameEventDatabase : MonoBehaviour {
         }
     }
     // used when noting happens.
-    public void nothing() { }
+    public void Nothing() { }
 
-    public void addNewMission()
+    public void AddNewMission()
     {
         Guild.addMission(GetComponent<GenerateMissions>().generateMission(10));
     }
-    public void addNewAdventurer()
+    public void AddNewAdventurer()
     {
-        Guild.addAdventurer(GetComponent<GenerateAdventurers>().GenerateRandormStartUpAdventurer());
+        Guild.addAdventurers(GetComponent<GenerateAdventurers>().GenerateRandormStartUpAdventurers(1));
     }
 
     public enum EventType

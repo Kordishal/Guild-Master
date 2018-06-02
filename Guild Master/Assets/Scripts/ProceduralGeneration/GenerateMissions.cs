@@ -46,6 +46,8 @@ public class GenerateMissions : MonoBehaviour {
                     temp_stage.Action = RetrieveTarget;
                     temp_stage.Repeatability = 10;                   
                     break;
+                default:
+                    break;
             }
 
 
@@ -61,7 +63,7 @@ public class GenerateMissions : MonoBehaviour {
             if (current_stage.Value.Target.Location != current_location)
             {
                 temp_stage = new Stage();
-                temp_stage.Name = StageNames.move_to_target;
+                temp_stage.Name = StageNames.MoveToTarget;
                 temp_stage.DisplayName = "Move to " + current_stage.Value.Target.Location.Name;
                 temp_stage.Action = Move;
                 temp_stage.Repeatability = -1;
@@ -79,7 +81,7 @@ public class GenerateMissions : MonoBehaviour {
 
         // Add a movement stage to return to the guild hall at the end.
         temp_stage = new Stage();
-        temp_stage.Name = StageNames.move_to_target;
+        temp_stage.Name = StageNames.MoveToTarget;
         temp_stage.DisplayName = "Move to " + World.GuildHall;
         temp_stage.Action = Move;
         temp_stage.Repeatability = -1;
@@ -182,9 +184,6 @@ public class GenerateMissions : MonoBehaviour {
     // STAGE ACTIONS
     static private void Move(Mission mission)
     {
-        if (mission.Adventurers.CurrentLocation == null)
-            mission.Adventurers.CurrentLocation = mission.CurrentStage.Value.PathToTargetLocation.First;
-
         int distance_required = World.getDistance(mission.Adventurers.CurrentLocation.Value, mission.Adventurers.CurrentLocation.Next.Value);
 
         var travel = mission.Adventurers.GetFastestTravel();

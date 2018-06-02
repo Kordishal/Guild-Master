@@ -15,9 +15,9 @@ public class ProgramSetup : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        Debug.Log("Begin Game Setup");
+        Debug.Log("Begin Game Setup");  
 
-        Guild.addAdventurers(GetComponent<GenerateAdventurers>().generateStartUpAdventurers());
+        Guild.addAdventurers(GetComponent<GenerateAdventurers>().GenerateRandormStartUpAdventurers(5));
         Guild.addMissions(GetComponent<GenerateMissions>().generateStartUpMissions());
     }
 

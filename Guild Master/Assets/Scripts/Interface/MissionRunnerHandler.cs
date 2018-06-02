@@ -104,7 +104,7 @@ public class MissionRunnerHandler : MonoBehaviour {
 
                 switch (m.CurrentStage.Value.Name)
                 {
-                    case StageNames.move_to_target:
+                    case StageNames.MoveToTarget:
                         if (m.Adventurers.CurrentLocation != m.CurrentStage.Value.PathToTargetLocation.Last)
                             GameObject.Find("RunningMissionDistanceNext").GetComponent<Text>().text = World.getDistance(m.Adventurers.CurrentLocation.Value, m.Adventurers.CurrentLocation.Next.Value).ToString();
                         GameObject.Find("RunningMissionTraveledDistance").GetComponent<Text>().text = m.CurrentStage.Value.DistanceTraveled.ToString();
